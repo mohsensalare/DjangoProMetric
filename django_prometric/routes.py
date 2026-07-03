@@ -11,7 +11,6 @@ from __future__ import annotations
 import hashlib
 import re
 from dataclasses import dataclass, field
-from typing import Optional
 
 from django.urls import Resolver404, URLPattern, URLResolver, get_resolver, resolve
 
@@ -40,7 +39,7 @@ class RouteInfo:
     route: str  # raw joined pattern, comparable with ResolverMatch.route
     display: str  # human readable path, e.g. /api/users/<pk>/
     wildcard: str  # provider filter pattern, e.g. /api/users/%
-    name: Optional[str]  # namespaced URL name, e.g. "shop:order-detail"
+    name: str | None  # namespaced URL name, e.g. "shop:order-detail"
     view: str  # dotted representation of the view
     group: str  # api | page | admin
     methods: list = field(default_factory=list)
@@ -251,7 +250,7 @@ def filter_routes(routes, mode=None, include=None, exclude=None, exclude_admin=N
     return result, errors
 
 
-def match_path(path: str) -> Optional[str]:
+def match_path(path: str) -> str | None:
     """Resolve a request path to its raw route pattern, or None.
 
     Used to attribute analytics paths (e.g. from Cloudflare) to Django
@@ -265,3 +264,38 @@ def match_path(path: str) -> Optional[str]:
         except Exception:  # noqa: BLE001 — never let a weird path break reports
             return None
     return None
+
+
+@dataclass
+class RouteTotals:
+    """Analytics summed over every concrete path a route served."""
+
+    requests: int = 0
+    bandwidth_bytes: int = 0
+    visits: int = 0
+    paths: int = 0  # number of distinct concrete paths
+
+
+def attribute(path_stats, routes):
+    """Group per-path analytics by the Django route each path resolves to.
+
+    ``path_stats`` is any iterable of objects with ``path``, ``requests``,
+    ``bandwidth_bytes`` and ``visits`` attributes (see providers.base).
+    Returns ``(totals, unmatched)``: totals maps ``RouteInfo.key`` to
+    :class:`RouteTotals`, unmatched keeps the stats no route claimed.
+    """
+    by_route = {route.route: route for route in routes}
+    totals = {}
+    unmatched = []
+    for stat in path_stats:
+        matched = match_path(stat.path)
+        route = by_route.get(matched) if matched else None
+        if route is None:
+            unmatched.append(stat)
+            continue
+        bucket = totals.setdefault(route.key, RouteTotals())
+        bucket.requests += stat.requests
+        bucket.bandwidth_bytes += stat.bandwidth_bytes
+        bucket.visits += stat.visits
+        bucket.paths += 1
+    return totals, unmatched
