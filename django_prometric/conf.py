@@ -11,8 +11,8 @@ from django.dispatch import receiver
 from django.test.signals import setting_changed
 
 DEFAULTS = {
-    # "auto" picks Cloudflare when it is configured, otherwise the local
-    # provider. Set a dotted path to plug in a custom AnalyticsProvider.
+    # "auto" currently selects the Cloudflare provider. Set a dotted path
+    # to plug in a custom AnalyticsProvider.
     "ANALYTICS_PROVIDER": "auto",
     "CLOUDFLARE": {
         # Names of the environment variables the credentials are read from.
@@ -35,11 +35,6 @@ DEFAULTS = {
     "STEALTH_404": False,
     "CACHE_ALIAS": "default",
     "CACHE_TTL": 300,  # seconds analytics responses are cached
-    "LOCAL": {
-        "SAMPLE_RATE": 1.0,  # fraction of requests recorded (0.0–1.0)
-        "RETENTION_DAYS": 30,
-        "IGNORE": [r"^/static/", r"^/media/", r"^/favicon\.ico$"],
-    },
     "COMPONENTS": [
         "django_prometric.components.OverviewCards",
         "django_prometric.components.TrafficChart",
