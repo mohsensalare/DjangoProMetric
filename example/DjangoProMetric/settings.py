@@ -37,7 +37,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_prometric',
+    'demo',
 ]
+
+try:
+    import rest_framework  # noqa: F401
+except ImportError:
+    pass
+else:
+    INSTALLED_APPS.append('rest_framework')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -116,3 +125,18 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+
+# django-prometric
+# Cloudflare credentials are read from the environment (CLOUDFLARE_API_TOKEN,
+# CLOUDFLARE_ZONE_ID, CLOUDFLARE_ACCOUNT_ID); until they are set the
+# dashboard shows setup instructions instead of data.
+
+DJANGO_PROMETRIC = {
+    'ANALYTICS_PROVIDER': 'auto',
+    'ROUTES': {
+        'MODE': 'all',
+        'EXCLUDE_ADMIN': True,
+    },
+    'ACCESS': 'superuser',
+}
