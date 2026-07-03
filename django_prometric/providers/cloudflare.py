@@ -180,24 +180,33 @@ class CloudflareProvider(AnalyticsProvider):
         return name
 
     # -- adaptive (per-path) queries with plan clamping ----------------------
+    # Free-plan adaptive queries allow at most a 1-day range, and Cloudflare
+    # measures it against "now" at execution time — so even an exact 24h
+    # window overflows by the request latency. Clamp a minute short of a day.
+    _CLAMP_WINDOW = dt.timedelta(hours=23, minutes=59)
+
     def _adaptive_period(self, period: Period) -> Period:
-        """Clamp the period to 24h once the plan limit has been observed."""
-        if period.days > 1 and self.cache.get(_CLAMP_FLAG_KEY) == "yes":
+        """Clamp the period once the plan limit has been observed."""
+        if self._too_wide(period) and self.cache.get(_CLAMP_FLAG_KEY) == "yes":
             return self._clamped(period)
         return period
 
+    def _too_wide(self, period: Period) -> bool:
+        return period.end - period.start > self._CLAMP_WINDOW
+
     def _clamped(self, period: Period) -> Period:
-        self.add_notice(
-            _(
-                "Your Cloudflare plan limits path-level analytics to a "
-                "24-hour window, so per-route numbers cover the last 24 "
-                "hours only."
+        if period.days > 1:  # only worth a notice when data is actually cut
+            self.add_notice(
+                _(
+                    "Your Cloudflare plan limits path-level analytics to a "
+                    "24-hour window, so per-route numbers cover the last 24 "
+                    "hours only."
+                )
             )
-        )
         return Period(
             key=period.key,
             label=period.label,
-            start=period.end - dt.timedelta(hours=24),
+            start=period.end - self._CLAMP_WINDOW,
             end=period.end,
         )
 
@@ -207,7 +216,7 @@ class CloudflareProvider(AnalyticsProvider):
         try:
             return self._cached_graphql(build_query(effective))
         except ProviderError as exc:
-            if exc.kind == "quota" and effective.days > 1:
+            if exc.kind == "quota" and self._too_wide(effective):
                 self.cache.set(_CLAMP_FLAG_KEY, "yes", 86400)
                 return self._cached_graphql(build_query(self._clamped(period)))
             raise
