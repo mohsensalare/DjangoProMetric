@@ -114,7 +114,11 @@ class PerformanceCard(DashboardComponent):
     def get_context(self):
         if base.PERFORMANCE not in self.provider.capabilities():
             return {"locked": True}
-        return {"locked": False, "stats": self.provider.get_performance(self.period)}
+        stats = self.provider.get_performance(self.period)
+        if base.PERFORMANCE not in self.provider.capabilities():
+            # The provider discovered mid-query that its plan gates timings.
+            return {"locked": True}
+        return {"locked": False, "stats": stats}
 
 
 class TopRoutesTable(DashboardComponent):

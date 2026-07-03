@@ -1,0 +1,20 @@
+{% extends "django_prometric/base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Setup" %}{% endblock %}
+{% block page_title %}{% translate "Dashboard" %}{% endblock %}
+
+{% block content %}
+  <div class="pm-onboard pm-card">
+    <h1>{% translate "Connect your analytics" %}</h1>
+    <p>{{ provider.configuration_help }}</p>
+    {% if provider.token_env %}
+      <pre class="pm-code">export {{ provider.token_env }}=&lt;api-token&gt;
+export {{ provider.zone_env }}=&lt;zone-id&gt;</pre>
+    {% endif %}
+    <p>
+      {% url 'django_prometric:routes' as routes_url %}
+      {% blocktranslate %}Meanwhile, you can already <a href="{{ routes_url }}">browse the routes</a> of this project.{% endblocktranslate %}
+    </p>
+  </div>
+{% endblock %}

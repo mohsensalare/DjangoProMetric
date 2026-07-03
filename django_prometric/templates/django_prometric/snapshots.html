@@ -1,0 +1,65 @@
+{% extends "django_prometric/base.html" %}
+{% load i18n prometric_extras %}
+
+{% block title %}{% translate "Snapshots" %}{% endblock %}
+{% block page_title %}{% translate "Snapshots" %}{% endblock %}
+
+{% block page_actions %}
+  {% if provider.is_configured %}
+    <form method="post" action="{% url 'django_prometric:snapshot-take' %}" class="pm-page-actions">
+      {% csrf_token %}
+      <select class="pm-select" name="period" aria-label="{% translate 'Period' %}">
+        {% for key, label in periods %}
+          <option value="{{ key }}" {% if key == period.key %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="pm-btn pm-btn--primary">{% translate "Save snapshot" %}</button>
+    </form>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  {% if snapshots %}
+    <div class="pm-card pm-card--table pm-table-wrap">
+      <table class="pm-table">
+        <thead>
+          <tr>
+            <th>{% translate "Taken" %}</th>
+            <th>{% translate "Period" %}</th>
+            <th>{% translate "Source" %}</th>
+            <th>{% translate "Series" %}</th>
+            <th class="pm-cell-num">{% translate "Requests" %}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for snapshot in snapshots %}
+            <tr>
+              <td><a href="{% url 'django_prometric:snapshot-detail' snapshot.pk %}">{{ snapshot.taken_at|date:"M j, Y H:i" }}</a></td>
+              <td>{{ snapshot.period }}</td>
+              <td>{{ snapshot.provider }}</td>
+              <td class="pm-methods">#{{ snapshot.parent_id|default:snapshot.pk }}</td>
+              <td class="pm-cell-num">{{ snapshot.data.overview.requests|num }}</td>
+              <td class="pm-cell-num">
+                <form method="post" action="{% url 'django_prometric:snapshot-take' %}" class="pm-inline-form">
+                  {% csrf_token %}
+                  <input type="hidden" name="retake" value="{{ snapshot.pk }}">
+                  <button type="submit" class="pm-btn">{% translate "Take again" %}</button>
+                </form>
+                <form method="post" action="{% url 'django_prometric:snapshot-delete' snapshot.pk %}"
+                      class="pm-inline-form" data-confirm="{% translate 'Delete this snapshot and its retakes?' %}">
+                  {% csrf_token %}
+                  <button type="submit" class="pm-btn pm-btn--quiet">{% translate "Delete" %}</button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="pm-empty pm-card">
+      <p>{% translate "No snapshots yet. Save one to freeze today's numbers, then take it again later to compare." %}</p>
+    </div>
+  {% endif %}
+{% endblock %}

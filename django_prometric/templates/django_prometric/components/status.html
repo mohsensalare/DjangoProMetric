@@ -1,0 +1,5 @@
+{% extends "django_prometric/components/card.html" %}
+
+{% block body %}
+  {% include "django_prometric/components/_bars.html" with items=items kind="status" %}
+{% endblock %}

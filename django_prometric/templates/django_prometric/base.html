@@ -1,0 +1,61 @@
+{% load i18n static %}<!DOCTYPE html>
+{% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
+<html lang="{{ LANGUAGE_CODE }}" dir="{% if LANGUAGE_BIDI %}rtl{% else %}ltr{% endif %}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>{% block title %}{% translate "Analytics" %}{% endblock %} · ProMetric</title>
+  <link rel="stylesheet" href="{% static 'django_prometric/prometric.css' %}">
+  <script src="{% static 'django_prometric/vendor/chart.umd.js' %}" defer></script>
+  <script src="{% static 'django_prometric/prometric.js' %}" defer></script>
+</head>
+<body>
+  <header class="pm-topbar">
+    <div class="pm-topbar__inner">
+      <a class="pm-brand" href="{% url 'django_prometric:dashboard' %}">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+          <rect x="1" y="9" width="3" height="6" rx="1"/>
+          <rect x="6.5" y="4" width="3" height="11" rx="1"/>
+          <rect x="12" y="1" width="3" height="14" rx="1"/>
+        </svg>
+        prometric{% if site_name %} · {{ site_name }}{% endif %}
+      </a>
+      {% with active=request.resolver_match.url_name %}
+      <nav class="pm-nav" aria-label="{% translate 'Sections' %}">
+        <a href="{% url 'django_prometric:dashboard' %}" {% if active == "dashboard" %}aria-current="page"{% endif %}>/dashboard</a>
+        <a href="{% url 'django_prometric:routes' %}" {% if active == "routes" or active == "route-detail" %}aria-current="page"{% endif %}>/routes</a>
+        <a href="{% url 'django_prometric:snapshots' %}" {% if active == "snapshots" or active == "snapshot-detail" %}aria-current="page"{% endif %}>/snapshots</a>
+      </nav>
+      {% endwith %}
+      <div class="pm-topbar__side">
+        {% if provider.is_configured %}{{ provider.verbose_name }}{% if provider.description %} · {{ provider.description }}{% endif %}{% endif %}
+      </div>
+    </div>
+  </header>
+
+  <main class="pm-main">
+    <div class="pm-page-head">
+      <h1>{% block page_title %}{% translate "Analytics" %}{% endblock %}</h1>
+      {% block page_meta %}{% endblock %}
+      <div class="pm-page-actions">{% block page_actions %}{% endblock %}</div>
+    </div>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="pm-flash{% if message.tags == 'error' %} pm-flash--error{% endif %}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    {% for notice in provider.notices %}
+      <div class="pm-notice pm-notice--info">{{ notice }}</div>
+    {% endfor %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="pm-footer">
+    django-prometric {{ version }}
+  </footer>
+</body>
+</html>

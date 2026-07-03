@@ -1,0 +1,38 @@
+{% extends "django_prometric/components/card.html" %}
+{% load i18n prometric_extras %}
+
+{% block head_extra %}
+  <a class="pm-hint" href="{% url 'django_prometric:routes' %}">{% translate "All routes" %}</a>
+{% endblock %}
+
+{% block body %}
+  {% if rows %}
+    <div class="pm-table-wrap">
+      <table class="pm-table">
+        <thead>
+          <tr>
+            <th>{% translate "Route" %}</th>
+            <th class="pm-cell-num">{% translate "Requests" %}</th>
+            <th class="pm-cell-num">{% translate "Bandwidth" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for route, totals in rows %}
+            <tr>
+              <td><a class="pm-route" href="{% url 'django_prometric:route-detail' route.key %}">{{ route.display|route_html }}</a></td>
+              <td class="pm-cell-num">{{ totals.requests|num }}</td>
+              <td class="pm-cell-num">{{ totals.bandwidth_bytes|size }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if unmatched_paths %}
+      <p class="pm-note">
+        {% blocktranslate count counter=unmatched_paths with requests=unmatched_requests %}{{ counter }} more path ({{ requests }} requests) doesn't match any route.{% plural %}{{ counter }} more paths ({{ requests }} requests) don't match any route.{% endblocktranslate %}
+      </p>
+    {% endif %}
+  {% else %}
+    <div class="pm-empty"><p>{% translate "No traffic matched your routes in this period." %}</p></div>
+  {% endif %}
+{% endblock %}

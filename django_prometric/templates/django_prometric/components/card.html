@@ -1,0 +1,8 @@
+{% comment %}Base card every dashboard component extends.{% endcomment %}
+<section class="pm-card pm-card--{{ component.width }}">
+  <header class="pm-card__head">
+    <h2>{{ component.title }}</h2>
+    {% block head_extra %}{% endblock %}
+  </header>
+  {% block body %}{% endblock %}
+</section>

@@ -1,0 +1,18 @@
+{% load i18n prometric_extras %}
+{% comment %}Horizontal share bars. Context: items (BreakdownItems), optional kind ("country"/"status").{% endcomment %}
+{% if items %}
+  <div class="pm-bars">
+    {% for item in items %}
+      <div class="pm-bar">
+        <span class="pm-bar__label">{% if kind == "country" %}{{ item.label|flag }} {% endif %}{{ item.label }}</span>
+        <span class="pm-bar__track">
+          <span class="pm-bar__fill{% if kind == 'status' %} pm-bar__fill--{{ item.label|status_class }}{% endif %}"
+                style="--pm-share: {% widthratio item.share 1 100 %}"></span>
+        </span>
+        <span class="pm-bar__value">{{ item.value|num }}</span>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="pm-empty"><p>{% translate "No data in this period." %}</p></div>
+{% endif %}

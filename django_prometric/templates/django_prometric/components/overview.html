@@ -1,0 +1,37 @@
+{% extends "django_prometric/components/card.html" %}
+{% load i18n prometric_extras %}
+
+{% block body %}
+  <div class="pm-stats">
+    <div class="pm-stat">
+      <div class="pm-stat__label">{% translate "Requests" %}</div>
+      <div class="pm-num">{{ stats.requests|num }}</div>
+    </div>
+    <div class="pm-stat">
+      <div class="pm-stat__label">{% translate "Unique visitors" %}</div>
+      <div class="pm-num">{{ stats.unique_visitors|num }}</div>
+    </div>
+    <div class="pm-stat">
+      <div class="pm-stat__label">{% translate "Page views" %}</div>
+      <div class="pm-num">{{ stats.page_views|num }}</div>
+    </div>
+    <div class="pm-stat">
+      <div class="pm-stat__label">{% translate "Bandwidth" %}</div>
+      <div class="pm-num">{{ stats.bandwidth_bytes|size }}</div>
+    </div>
+    <div class="pm-stat">
+      <div class="pm-stat__label">{% translate "Cache ratio" %}</div>
+      <div class="pm-num">{{ stats.cache_ratio|pct }}</div>
+      <div class="pm-stat__sub">{% blocktranslate with cached=stats.cached_requests|num %}{{ cached }} cached{% endblocktranslate %}</div>
+    </div>
+    <div class="pm-stat">
+      <div class="pm-stat__label">{% translate "Errors" %}</div>
+      <div class="pm-num">{{ stats.errors|num }}</div>
+      <div class="pm-stat__sub">{{ stats.error_ratio|pct }}</div>
+    </div>
+    <div class="pm-stat">
+      <div class="pm-stat__label">{% translate "Threats" %}</div>
+      <div class="pm-num">{{ stats.threats|num }}</div>
+    </div>
+  </div>
+{% endblock %}

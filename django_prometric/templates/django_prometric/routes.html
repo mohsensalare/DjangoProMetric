@@ -1,0 +1,89 @@
+{% extends "django_prometric/base.html" %}
+{% load i18n prometric_extras %}
+
+{% block title %}{% translate "Routes" %}{% endblock %}
+{% block page_title %}{% translate "Routes" %}{% endblock %}
+
+{% block content %}
+  {% if not drf_installed %}
+    <div class="pm-notice">
+      {% translate "Django REST Framework is not installed, so only regular Django routes are listed." %}
+    </div>
+  {% endif %}
+  {% for config_error in config_errors %}
+    <div class="pm-notice pm-notice--error">
+      {% blocktranslate %}Invalid pattern in your route filters: {{ config_error }}{% endblocktranslate %}
+    </div>
+  {% endfor %}
+  {% if error %}
+    <div class="pm-notice pm-notice--error">{{ error.message }}</div>
+  {% endif %}
+
+  <div class="pm-toolbar">
+    <nav class="pm-tabs" aria-label="{% translate 'Route groups' %}">
+      <a href="?period={{ period.key }}{% if query %}&amp;q={{ query|urlencode }}{% endif %}{% if request.GET.admin %}&amp;admin={{ request.GET.admin }}{% endif %}"
+         {% if not group %}aria-current="true"{% endif %}>{% translate "All" %} <span class="pm-count">{{ total }}</span></a>
+      <a href="?group=api&amp;period={{ period.key }}{% if query %}&amp;q={{ query|urlencode }}{% endif %}{% if request.GET.admin %}&amp;admin={{ request.GET.admin }}{% endif %}"
+         {% if group == "api" %}aria-current="true"{% endif %}>{% translate "API" %} <span class="pm-count">{{ counts.api }}</span></a>
+      <a href="?group=page&amp;period={{ period.key }}{% if query %}&amp;q={{ query|urlencode }}{% endif %}{% if request.GET.admin %}&amp;admin={{ request.GET.admin }}{% endif %}"
+         {% if group == "page" %}aria-current="true"{% endif %}>{% translate "Pages" %} <span class="pm-count">{{ counts.page }}</span></a>
+      {% if not admin_hidden %}
+        <a href="?group=admin&amp;period={{ period.key }}{% if query %}&amp;q={{ query|urlencode }}{% endif %}{% if request.GET.admin %}&amp;admin={{ request.GET.admin }}{% endif %}"
+           {% if group == "admin" %}aria-current="true"{% endif %}>{% translate "Admin" %} <span class="pm-count">{{ counts.admin }}</span></a>
+      {% endif %}
+    </nav>
+
+    <form method="get" data-autosubmit class="pm-search">
+      {% if group %}<input type="hidden" name="group" value="{{ group }}">{% endif %}
+      <input type="search" class="pm-input" name="q" value="{{ query }}"
+             placeholder="{% translate 'Filter routes — regex works' %}"
+             aria-label="{% translate 'Filter routes' %}">
+      <select class="pm-select" name="period" aria-label="{% translate 'Period' %}">
+        {% for key, label in periods %}
+          <option value="{{ key }}" {% if key == period.key %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <input type="hidden" name="admin" value="0">
+      <label class="pm-check">
+        <input type="checkbox" name="admin" value="1" {% if not admin_hidden %}checked{% endif %}>
+        {% translate "Admin routes" %}
+      </label>
+    </form>
+  </div>
+
+  <div class="pm-card pm-card--table pm-table-wrap">
+    <table class="pm-table">
+      <thead>
+        <tr>
+          <th>{% translate "Route" %}</th>
+          <th>{% translate "Group" %}</th>
+          <th>{% translate "Methods" %}</th>
+          <th class="pm-cell-num">{% translate "Requests" %}</th>
+          <th class="pm-cell-num">{% translate "Bandwidth" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for route, totals in rows %}
+          <tr>
+            <td>
+              <a class="pm-route" href="{% url 'django_prometric:route-detail' route.key %}?period={{ period.key }}{% if request.GET.admin %}&amp;admin={{ request.GET.admin }}{% endif %}">{{ route.display|route_html }}</a>
+              {% if route.name %}<div class="pm-methods">{{ route.name }}</div>{% endif %}
+            </td>
+            <td><span class="pm-badge pm-badge--{{ route.group }}">{{ route.group }}</span></td>
+            <td class="pm-methods">{{ route.methods|join:" " }}</td>
+            <td class="pm-cell-num">{% if totals %}{{ totals.requests|num }}{% else %}·{% endif %}</td>
+            <td class="pm-cell-num">{% if totals %}{{ totals.bandwidth_bytes|size }}{% else %}·{% endif %}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5"><div class="pm-empty"><p>{% translate "No routes match this filter." %}</p></div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if unmatched_paths %}
+    <p class="pm-note">
+      {% blocktranslate count counter=unmatched_paths with requests=unmatched_requests %}{{ counter }} path ({{ requests }} requests) was served but doesn't match any route above.{% plural %}{{ counter }} paths ({{ requests }} requests) were served but don't match any route above.{% endblocktranslate %}
+    </p>
+  {% endif %}
+{% endblock %}

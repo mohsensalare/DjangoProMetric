@@ -1,0 +1,25 @@
+{% extends "django_prometric/components/card.html" %}
+{% load i18n prometric_extras %}
+
+{% block body %}
+  {% if locked %}
+    <p class="pm-locked">{% translate "Response-time percentiles aren't available from the current data source or plan." %}</p>
+  {% elif stats %}
+    <div class="pm-stats">
+      <div class="pm-stat">
+        <div class="pm-stat__label">{% translate "TTFB p50" %}</div>
+        <div class="pm-num">{{ stats.p50_ms|ms }}</div>
+      </div>
+      <div class="pm-stat">
+        <div class="pm-stat__label">{% translate "TTFB p95" %}</div>
+        <div class="pm-num">{{ stats.p95_ms|ms }}</div>
+      </div>
+      <div class="pm-stat">
+        <div class="pm-stat__label">{% translate "TTFB p99" %}</div>
+        <div class="pm-num">{{ stats.p99_ms|ms }}</div>
+      </div>
+    </div>
+  {% else %}
+    <div class="pm-empty"><p>{% translate "No data in this period." %}</p></div>
+  {% endif %}
+{% endblock %}

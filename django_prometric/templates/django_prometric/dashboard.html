@@ -1,0 +1,35 @@
+{% extends "django_prometric/base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Dashboard" %}{% endblock %}
+{% block page_title %}{% translate "Dashboard" %}{% endblock %}
+
+{% block page_actions %}
+  <form method="get" data-autosubmit>
+    <select class="pm-select" name="period" aria-label="{% translate 'Period' %}">
+      {% for key, label in periods %}
+        <option value="{{ key }}" {% if key == period.key %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+  </form>
+  <form method="post" action="{% url 'django_prometric:refresh' %}">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+    <button type="submit" class="pm-btn">{% translate "Refresh" %}</button>
+  </form>
+  <form method="post" action="{% url 'django_prometric:snapshot-take' %}">
+    {% csrf_token %}
+    <input type="hidden" name="period" value="{{ period.key }}">
+    <button type="submit" class="pm-btn pm-btn--primary">{% translate "Save snapshot" %}</button>
+  </form>
+{% endblock %}
+
+{% block content %}
+  {% if error %}
+    <div class="pm-notice pm-notice--error">{{ error.message }}</div>
+  {% else %}
+    <div class="pm-grid">
+      {% for card in cards %}{{ card }}{% endfor %}
+    </div>
+  {% endif %}
+{% endblock %}

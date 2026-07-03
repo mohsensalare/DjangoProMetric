@@ -182,6 +182,9 @@ def _walk(resolver, prefix, namespaces, routes):
             ns = namespaces + ([entry.namespace] if entry.namespace else [])
             _walk(entry, prefix + str(entry.pattern), ns, routes)
         elif isinstance(entry, URLPattern):
+            view = _view_label(entry.callback)
+            if view.startswith("django_prometric."):
+                continue  # the dashboard doesn't report on itself
             route = prefix + str(entry.pattern)
             display = "/" + _describe_pattern_joined(prefix, entry.pattern)
             name = entry.name
@@ -193,7 +196,7 @@ def _walk(resolver, prefix, namespaces, routes):
                     display=display,
                     wildcard=_to_wildcard(display),
                     name=name,
-                    view=_view_label(entry.callback),
+                    view=view,
                     group=_view_group(entry.callback, namespaces),
                     methods=_view_methods(entry.callback),
                     is_dynamic="<" in display,

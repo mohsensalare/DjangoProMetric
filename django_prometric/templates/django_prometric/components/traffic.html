@@ -1,0 +1,11 @@
+{% extends "django_prometric/components/card.html" %}
+{% load i18n %}
+
+{% block body %}
+  {% if chart.labels %}
+    {{ chart|json_script:"pm-traffic-chart" }}
+    <div class="pm-chart"><canvas data-source="pm-traffic-chart" role="img" aria-label="{% translate 'Requests over time' %}"></canvas></div>
+  {% else %}
+    <div class="pm-empty"><p>{% translate "No traffic in this period." %}</p></div>
+  {% endif %}
+{% endblock %}

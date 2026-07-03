@@ -11,6 +11,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
+from . import __version__
 from .components import load_components
 from .conf import get_config
 from .models import Snapshot
@@ -26,6 +27,7 @@ def _base_context(provider, period):
         "period": period,
         "periods": Period.choices(),
         "site_name": get_config()["SITE_NAME"],
+        "version": __version__,
     }
 
 
@@ -103,6 +105,7 @@ def routes(request):
         {
             "rows": [(route, totals.get(route.key)) for route in visible],
             "counts": counts,
+            "total": sum(counts.values()),
             "group": group,
             "query": query,
             "admin_hidden": admin_hidden,
@@ -196,7 +199,7 @@ def snapshot_detail(request, pk):
         {
             "snapshot": snapshot,
             "series": series,
-            "rows": comparison(series) if len(series) > 1 else [],
+            "rows": comparison(series),
             "filters_changed": any(s.filters != series[0].filters for s in series),
         }
     )
