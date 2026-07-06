@@ -2,23 +2,26 @@
 {% load i18n prometric_extras %}
 
 {% block body %}
-  {% if locked %}
-    <p class="pm-locked">{% translate "Response-time percentiles aren't available from the current data source or plan." %}</p>
-  {% elif stats %}
-    <div class="pm-stats">
-      <div class="pm-stat">
-        <div class="pm-stat__label">{% translate "TTFB p50" %}</div>
-        <div class="pm-num">{{ stats.p50_ms|ms }}</div>
-      </div>
-      <div class="pm-stat">
-        <div class="pm-stat__label">{% translate "TTFB p95" %}</div>
-        <div class="pm-num">{{ stats.p95_ms|ms }}</div>
-      </div>
-      <div class="pm-stat">
-        <div class="pm-stat__label">{% translate "TTFB p99" %}</div>
-        <div class="pm-num">{{ stats.p99_ms|ms }}</div>
-      </div>
+  {% if rows %}
+    <div class="pm-perf-list">
+      {% for row in rows %}
+        <div class="pm-perf">
+          <div class="pm-perf__head">
+            <span class="pm-tip pm-perf__label" tabindex="0" data-tip="{{ row.tip }}">{{ row.label }}</span>
+            <span class="pm-rating pm-rating--{{ row.rating }}">{{ row.word }}</span>
+            <span class="pm-perf__value pm-perf__value--{{ row.rating }}">
+              {% if row.is_rate %}{{ row.value|pct }}{% else %}{{ row.value|ms }}{% endif %}
+            </span>
+          </div>
+          <div class="pm-meter">
+            <span class="pm-meter__dot pm-meter__dot--{{ row.rating }}" style="left: {{ row.position }}%"></span>
+          </div>
+        </div>
+      {% endfor %}
     </div>
+    {% if stats.requests %}
+      <p class="pm-note">{% blocktranslate with requests=stats.requests|num %}Measured over {{ requests }} transactions.{% endblocktranslate %}</p>
+    {% endif %}
   {% else %}
     <div class="pm-empty"><p>{% translate "No data in this period." %}</p></div>
   {% endif %}

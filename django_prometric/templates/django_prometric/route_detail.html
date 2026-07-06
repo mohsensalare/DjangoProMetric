@@ -15,100 +15,32 @@
 {% block page_actions %}
   <form method="get" data-autosubmit>
     {% if request.GET.admin %}<input type="hidden" name="admin" value="{{ request.GET.admin }}">{% endif %}
-    <select class="pm-select" name="period" aria-label="{% translate 'Period' %}">
-      {% for key, label in periods %}
-        <option value="{{ key }}" {% if key == period.key %}selected{% endif %}>{{ label }}</option>
-      {% endfor %}
-    </select>
+    {% include "django_prometric/_period.html" %}
   </form>
 {% endblock %}
 
 {% block content %}
-  {% if error %}
-    <div class="pm-notice pm-notice--error">{{ error.message }}</div>
-  {% elif metrics %}
-    <div class="pm-grid">
-      <section class="pm-card">
-        <div class="pm-stats">
-          <div class="pm-stat">
-            <div class="pm-stat__label">{% translate "Requests" %}</div>
-            <div class="pm-num">{{ metrics.requests|num }}</div>
-          </div>
-          <div class="pm-stat">
-            <div class="pm-stat__label">{% translate "Visits" %}</div>
-            <div class="pm-num">{{ metrics.visits|num }}</div>
-          </div>
-          <div class="pm-stat">
-            <div class="pm-stat__label">{% translate "Bandwidth" %}</div>
-            <div class="pm-num">{{ metrics.bandwidth_bytes|size }}</div>
-          </div>
-          <div class="pm-stat">
-            <div class="pm-stat__label">{% translate "Errors" %}</div>
-            <div class="pm-num">{{ metrics.errors|num }}</div>
-            <div class="pm-stat__sub">{{ metrics.error_ratio|pct }}</div>
-          </div>
-          <div class="pm-stat">
-            <div class="pm-stat__label">{% translate "Last seen" %}</div>
-            {% if metrics.last_seen %}
-              <div class="pm-num">{{ metrics.last_seen|date:"H:i" }}</div>
-              <div class="pm-stat__sub">{{ metrics.last_seen|date:"M j" }}</div>
-            {% else %}
-              <div class="pm-num">—</div>
-            {% endif %}
-          </div>
+  {% for section in sections %}
+    <details class="pm-section" open>
+      <summary class="pm-section__head">
+        <svg class="pm-section__chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 2.5 7.5 6 4 9.5"/>
+        </svg>
+        <span class="pm-section__name">{{ section.provider.verbose_name }}</span>
+        <span class="pm-section__kind">{{ section.provider.kind }}</span>
+      </summary>
+      <div class="pm-section__body" data-section-url="{{ section.url }}" aria-busy="true">
+        <div class="pm-skel-body" aria-hidden="true">
+          <span class="pm-skel" style="inline-size: 55%"></span>
+          <span class="pm-skel" style="inline-size: 90%"></span>
+          <span class="pm-skel" style="inline-size: 72%"></span>
         </div>
-      </section>
-
-      <section class="pm-card">
-        <header class="pm-card__head"><h2>{% translate "Traffic" %}</h2></header>
-        {% if chart.labels %}
-          {{ chart|json_script:"pm-route-chart" }}
-          <div class="pm-chart pm-chart--small"><canvas data-source="pm-route-chart" role="img" aria-label="{% translate 'Requests over time' %}"></canvas></div>
-        {% else %}
-          <div class="pm-empty"><p>{% translate "No traffic in this period." %}</p></div>
-        {% endif %}
-      </section>
-
-      {% if metrics.performance %}
-        <section class="pm-card">
-          <header class="pm-card__head"><h2>{% translate "Performance" %}</h2></header>
-          <div class="pm-stats">
-            <div class="pm-stat">
-              <div class="pm-stat__label">{% translate "TTFB p50" %}</div>
-              <div class="pm-num">{{ metrics.performance.p50_ms|ms }}</div>
-            </div>
-            <div class="pm-stat">
-              <div class="pm-stat__label">{% translate "TTFB p95" %}</div>
-              <div class="pm-num">{{ metrics.performance.p95_ms|ms }}</div>
-            </div>
-            <div class="pm-stat">
-              <div class="pm-stat__label">{% translate "TTFB p99" %}</div>
-              <div class="pm-num">{{ metrics.performance.p99_ms|ms }}</div>
-            </div>
-          </div>
-        </section>
-      {% endif %}
-
-      <section class="pm-card pm-card--half">
-        <header class="pm-card__head"><h2>{% translate "Countries" %}</h2></header>
-        {% include "django_prometric/components/_bars.html" with items=metrics.countries kind="country" %}
-      </section>
-      <section class="pm-card pm-card--half">
-        <header class="pm-card__head"><h2>{% translate "Status codes" %}</h2></header>
-        {% include "django_prometric/components/_bars.html" with items=metrics.statuses kind="status" %}
-      </section>
-      <section class="pm-card pm-card--half">
-        <header class="pm-card__head"><h2>{% translate "Methods" %}</h2></header>
-        {% include "django_prometric/components/_bars.html" with items=metrics.methods %}
-      </section>
-      <section class="pm-card pm-card--half">
-        <header class="pm-card__head"><h2>{% translate "Cache" %}</h2></header>
-        {% include "django_prometric/components/_bars.html" with items=metrics.cache %}
-      </section>
+      </div>
+    </details>
+  {% empty %}
+    <div class="pm-empty pm-card">
+      <p>{% translate "No data source is configured for route details." %}</p>
+      <a href="{% url 'django_prometric:providers' %}">{% translate "Set up a provider" %}</a>
     </div>
-  {% else %}
-    <div class="pm-empty">
-      <p>{% translate "Connect a data source to see analytics for this route." %}</p>
-    </div>
-  {% endif %}
+  {% endfor %}
 {% endblock %}

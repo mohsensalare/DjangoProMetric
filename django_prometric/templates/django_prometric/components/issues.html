@@ -1,0 +1,36 @@
+{% extends "django_prometric/components/card.html" %}
+{% load i18n prometric_extras %}
+
+{% block body %}
+  {% if issues %}
+    <div class="pm-table-wrap">
+      <table class="pm-table">
+        <thead>
+          <tr>
+            <th>{% translate "Error" %}</th>
+            <th class="pm-cell-num">{% translate "Events" %}</th>
+            <th class="pm-cell-num">{% translate "Users" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for issue in issues %}
+            <tr>
+              <td>
+                {% if issue.permalink %}
+                  <a href="{{ issue.permalink }}" rel="noopener" target="_blank">{{ issue.title }}</a>
+                {% else %}
+                  {{ issue.title }}
+                {% endif %}
+                {% if issue.culprit %}<div class="pm-methods">{{ issue.culprit }}</div>{% endif %}
+              </td>
+              <td class="pm-cell-num">{{ issue.events|num }}</td>
+              <td class="pm-cell-num">{{ issue.users|num }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="pm-empty"><p>{% translate "No unresolved errors in this period. Nice." %}</p></div>
+  {% endif %}
+{% endblock %}

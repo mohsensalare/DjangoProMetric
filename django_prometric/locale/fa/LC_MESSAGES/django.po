@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: django-prometric\n"
-"Report-Msgid-Bugs-To: https://github.com/mohsensalare/DjangoProMetric/issues\n"
-"POT-Creation-Date: 2026-07-03 11:19+0330\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-06 19:18+0330\n"
 "PO-Revision-Date: 2026-07-03 11:30+0330\n"
 "Last-Translator: Mohsen Salare <mohsensalare@gmail.com>\n"
 "Language-Team: Persian\n"
@@ -17,74 +17,196 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: admin.py:37
-msgid ""
-"Include \"django_prometric.urls\" in your URLconf to open the dashboard."
-msgstr "برای باز شدن داشبورد، «django_prometric.urls» را به URLconf پروژه اضافه کنید."
+msgid "Include \"django_prometric.urls\" in your URLconf to open the dashboard."
+msgstr ""
+"برای باز شدن داشبورد، «django_prometric.urls» را به URLconf پروژه اضافه "
+"کنید."
 
 #: apps.py:8
 msgid "ProMetric"
 msgstr "پرومتریک"
 
-#: components.py:55 templates/django_prometric/snapshot_detail.html:38
+#: components.py:94
 msgid "Overview"
 msgstr "نمای کلی"
 
-#: components.py:64 templates/django_prometric/route_detail.html:63
+#: components.py:136 templates/django_prometric/route/traffic.html:40
 msgid "Traffic"
 msgstr "ترافیک"
 
-#: components.py:76 templates/django_prometric/route_detail.html:93
-#: templates/django_prometric/snapshot_detail.html:99
+#: components.py:148 templates/django_prometric/route/traffic.html:69
+#: templates/django_prometric/snapshot_detail.html:109
 msgid "Countries"
 msgstr "کشورها"
 
-#: components.py:86 templates/django_prometric/route_detail.html:97
-#: templates/django_prometric/snapshot_detail.html:117
+#: components.py:162 templates/django_prometric/route/traffic.html:73
+#: templates/django_prometric/snapshot_detail.html:127
 msgid "Status codes"
 msgstr "کدهای وضعیت"
 
-#: components.py:96 templates/django_prometric/route_detail.html:105
+#: components.py:172 providers/sentry.py:295 providers/sentry.py:296
+#: providers/sentry.py:297 templates/django_prometric/route/traffic.html:81
 msgid "Cache"
 msgstr "کش"
 
-#: components.py:108 templates/django_prometric/route_detail.html:74
+#: components.py:192
+msgid "Half of all requests finish faster than this — the typical experience."
+msgstr "نیمی از درخواست‌ها سریع‌تر از این تمام می‌شوند — تجربه‌ی معمول کاربر."
+
+#: components.py:193
+msgid "Three out of four requests finish faster than this."
+msgstr "سه‌چهارم درخواست‌ها سریع‌تر از این تمام می‌شوند."
+
+#: components.py:194
+msgid "All but the slowest 5% stay under this — how the slow moments feel."
+msgstr ""
+"همه‌ی درخواست‌ها جز ۵٪ کندترین زیر این عدد می‌مانند — حسِ لحظه‌های کند."
+
+#: components.py:195
+msgid "The worst 1%: outliers, cold caches and heavy queries."
+msgstr "بدترین ۱٪: موارد پرت، کش سرد و کوئری‌های سنگین."
+
+#: components.py:222
 msgid "Performance"
 msgstr "کارایی"
 
-#: components.py:126 templates/django_prometric/snapshot_detail.html:73
+#: components.py:226 components.py:265
+msgid "Good"
+msgstr "خوب"
+
+#: components.py:226 components.py:265
+msgid "Okay"
+msgstr "متوسط"
+
+#: components.py:226
+msgid "Slow"
+msgstr "کند"
+
+#: components.py:251
+#, python-format
+msgid "Good under %(good)s ms, okay under %(fair)s ms, slow above that."
+msgstr ""
+"زیر %(good)s میلی‌ثانیه خوب، زیر %(fair)s میلی‌ثانیه متوسط و بالاتر از آن "
+"کند است."
+
+#: components.py:261 snapshots.py:118
+#: templates/django_prometric/components/slowest.html:15
+#: templates/django_prometric/route/performance.html:16
+#: templates/django_prometric/snapshot_detail.html:87
+msgid "Failure rate"
+msgstr "نرخ خطا"
+
+#: components.py:265
+msgid "High"
+msgstr "زیاد"
+
+#: components.py:268
+msgid ""
+"The share of requests that ended in an error. Good under 1%, okay under 5%, "
+"worrying above that."
+msgstr ""
+"سهم درخواست‌هایی که به خطا ختم شدند. زیر ۱٪ خوب، زیر ۵٪ متوسط و بالاتر از آن"
+" نگران‌کننده است."
+
+#: components.py:280 templates/django_prometric/snapshot_detail.html:77
+msgid "Slowest routes"
+msgstr "کندترین مسیرها"
+
+#: components.py:296
+msgid "Security"
+msgstr "امنیت"
+
+#: components.py:309
+msgid "Insights"
+msgstr "یافته‌ها"
+
+#: components.py:342
+msgid "Bots"
+msgstr "ربات‌ها"
+
+#: components.py:353
+msgid "People & unverified"
+msgstr "انسان‌ها و تأییدنشده‌ها"
+
+#: components.py:353 templates/django_prometric/components/bots.html:10
+msgid "Verified bots"
+msgstr "ربات‌های تأییدشده"
+
+#: components.py:363
+msgid "SEO crawlers"
+msgstr "خزنده‌های سئو"
+
+#: components.py:375 templates/django_prometric/components/issues.html:12
+msgid "Users"
+msgstr "کاربران"
+
+#: components.py:387
+msgid "Network"
+msgstr "شبکه"
+
+#: components.py:399
+msgid "Where time goes"
+msgstr "زمان کجا می‌رود"
+
+#: components.py:411
+msgid "Slowest queries"
+msgstr "کندترین کوئری‌ها"
+
+#: components.py:422 snapshots.py:107
+#: templates/django_prometric/components/overview.html:41
+#: templates/django_prometric/route/traffic.html:22
+msgid "Errors"
+msgstr "خطاها"
+
+#: components.py:434 providers/postgres.py:72
+msgid "Database health"
+msgstr "سلامت دیتابیس"
+
+#: components.py:445 templates/django_prometric/components/database.html:12
+msgid "Tables"
+msgstr "جدول‌ها"
+
+#: components.py:460 templates/django_prometric/components/database.html:17
+msgid "Indexes"
+msgstr "ایندکس‌ها"
+
+#: components.py:475 templates/django_prometric/snapshot_detail.html:51
 msgid "Top routes"
 msgstr "پربازدیدترین مسیرها"
 
-#: models.py:25 models.py:26
+#: models.py:27 models.py:28
 msgid "Analytics dashboard"
 msgstr "داشبورد آمار"
 
-#: models.py:54
+#: models.py:62 models.py:63
+msgid "preferences"
+msgstr "تنظیمات"
+
+#: models.py:116
 msgid "snapshot"
 msgstr "اسنپ‌شات"
 
-#: models.py:55
+#: models.py:117
 msgid "snapshots"
 msgstr "اسنپ‌شات‌ها"
 
-#: providers/base.py:42
-msgid "Last 24 hours"
-msgstr "۲۴ ساعت گذشته"
-
-#: providers/base.py:43
-msgid "Last 7 days"
-msgstr "۷ روز گذشته"
-
-#: providers/base.py:44
-msgid "Last 30 days"
-msgstr "۳۰ روز گذشته"
-
-#: providers/base.py:229 templates/django_prometric/base.html:8
-#: templates/django_prometric/base.html:39
+#: providers/base.py:113 providers/base.py:116
+#: templates/django_prometric/base.html:8
+#: templates/django_prometric/base.html:64
 msgid "Analytics"
 msgstr "آمار"
 
-#: providers/cloudflare.py:82
+#: providers/base.py:157
+#, python-format
+msgid "%(name)s can only look back %(days)s days; the window was shortened."
+msgstr ""
+"%(name)s فقط می‌تواند %(days)s روز گذشته را بررسی کند؛ پنجره زمانی کوتاه شد."
+
+#: providers/cloudflare.py:62
+msgid "Edge traffic"
+msgstr "ترافیک Edge"
+
+#: providers/cloudflare.py:90
 #, python-format
 msgid ""
 "Set the %(token)s and %(zone)s environment variables to a Cloudflare API "
@@ -95,206 +217,1109 @@ msgstr ""
 "Analytics Read و شناسه‌ی zone خود مقداردهی کنید و سرور را دوباره راه‌اندازی "
 "کنید."
 
-#: providers/cloudflare.py:126
+#: providers/cloudflare.py:149
 msgid "Cloudflare rejected the API token. Check its permissions."
 msgstr "کلادفلر توکن API را نپذیرفت. دسترسی‌های آن را بررسی کنید."
 
-#: providers/cloudflare.py:130
+#: providers/cloudflare.py:153
 #, python-format
 msgid "Cloudflare API returned HTTP %(code)s."
 msgstr "‏API کلادفلر پاسخ HTTP %(code)s برگرداند."
 
-#: providers/cloudflare.py:135
+#: providers/cloudflare.py:160
 #, python-format
 msgid "Could not reach the Cloudflare API: %(reason)s"
 msgstr "دسترسی به API کلادفلر ممکن نشد: %(reason)s"
 
-#: providers/cloudflare.py:152
+#: providers/cloudflare.py:177
 #, python-format
 msgid "Cloudflare analytics error: %(message)s"
 msgstr "خطای آمار کلادفلر: %(message)s"
 
-#: providers/cloudflare.py:157
+#: providers/cloudflare.py:182
 msgid "Cloudflare returned no data for this zone. Check the zone ID."
 msgstr "کلادفلر داده‌ای برای این zone برنگرداند. شناسه‌ی zone را بررسی کنید."
 
-#: providers/cloudflare.py:201
+#: providers/cloudflare.py:226
 msgid ""
-"Your Cloudflare plan limits path-level analytics to a 24-hour window, so per-"
-"route numbers cover the last 24 hours only."
+"Showing the last 24 hours instead of the selected range — your Cloudflare "
+"plan limits path-level analytics to a 24-hour window."
 msgstr ""
-"پلن کلادفلر شما آمار سطح مسیر را به بازه‌ی ۲۴ ساعته محدود می‌کند؛ بنابراین "
-"اعداد هر مسیر فقط ۲۴ ساعت گذشته را پوشش می‌دهند."
+"به‌جای بازه‌ی انتخابی، ۲۴ ساعت اخیر نمایش داده می‌شود — پلن کلادفلر شما آمار"
+" سطح مسیر را به پنجره‌ی ۲۴ ساعته محدود می‌کند."
 
-#: snapshots.py:73 templates/django_prometric/components/overview.html:7
+#: providers/cloudflare.py:591
+msgid "Blocked"
+msgstr "مسدودشده"
+
+#: providers/cloudflare.py:592
+msgid "Challenged"
+msgstr "چالش‌شده"
+
+#: providers/cloudflare.py:593
+msgid "Managed challenge"
+msgstr "چالش مدیریت‌شده"
+
+#: providers/cloudflare.py:594
+msgid "JS challenge"
+msgstr "چالش جاوااسکریپت"
+
+#: providers/cloudflare.py:595
+msgid "Logged"
+msgstr "فقط ثبت‌شده"
+
+#: providers/cloudflare.py:596
+msgid "Skipped"
+msgstr "ردشده"
+
+#: providers/cloudflare.py:600
+msgid "Managed rules"
+msgstr "قواعد مدیریت‌شده"
+
+#: providers/cloudflare.py:601
+msgid "Custom rules"
+msgstr "بازه‌ی دلخواه…"
+
+#: providers/cloudflare.py:602
+msgid "Firewall rules"
+msgstr "قواعد فایروال"
+
+#: providers/cloudflare.py:603
+msgid "Rate limiting"
+msgstr "محدودیت نرخ"
+
+#: providers/cloudflare.py:604
+msgid "Security level"
+msgstr "سطح امنیتی"
+
+#: providers/cloudflare.py:605
+msgid "Bot Fight Mode"
+msgstr "حالت مقابله با بات"
+
+#: providers/cloudflare.py:606
+msgid "DDoS protection"
+msgstr "بخش‌ها"
+
+#: providers/cloudflare.py:607
+msgid "IP rules"
+msgstr "قواعد IP"
+
+#: providers/cloudflare.py:608
+msgid "Country rules"
+msgstr "کشورها"
+
+#: providers/cloudflare.py:806
+msgid "The edge cache is barely used"
+msgstr "کش لبه تقریباً بی‌استفاده است"
+
+#: providers/cloudflare.py:807
+#, python-format
+msgid "Only %(share)d%% of %(requests)s requests were served from cache."
+msgstr "فقط %(share)d٪ از %(requests)s درخواست از کش پاسخ گرفتند."
+
+#: providers/cloudflare.py:810
+msgid ""
+"Send Cache-Control headers on static files and cacheable pages so the CDN "
+"can answer them without hitting Django."
+msgstr ""
+"روی فایل‌های استاتیک و صفحه‌های کش‌پذیر هدر Cache-Control بفرست تا CDN بدون "
+"رسیدن به جنگو پاسخشان بدهد."
+
+#: providers/cloudflare.py:819
+msgid "The edge cache is pulling its weight"
+msgstr "کش لبه دارد کارش را خوب انجام می‌دهد"
+
+#: providers/cloudflare.py:820
+#, python-format
+msgid "%(share)d%% of requests never reached your server."
+msgstr "%(share)d٪ از درخواست‌ها هرگز به سرور شما نرسیدند."
+
+#: providers/cloudflare.py:840
+msgid "Requests are failing with server errors"
+msgstr "درخواست‌ها با خطای سرور شکست می‌خورند"
+
+#: providers/cloudflare.py:841
+#, python-format
+msgid "%(count)s requests (%(share).1f%%) ended in a 5xx status."
+msgstr "%(count)s درخواست (%(share).1f٪) به وضعیت 5xx ختم شدند."
+
+#: providers/cloudflare.py:843
+msgid "Open the application errors list and fix the top offenders."
+msgstr "فهرست خطاهای برنامه را باز کن و پرتکرارترین‌ها را رفع کن."
+
+#: providers/cloudflare.py:850
+msgid "No server errors at the edge"
+msgstr "هیچ خطای سروری در لبه نیست"
+
+#: providers/cloudflare.py:851
+#, python-format
+msgid "None of the %(requests)s requests returned a 5xx status."
+msgstr "هیچ‌کدام از %(requests)s درخواست وضعیت 5xx برنگرداندند."
+
+#: providers/cloudflare.py:859
+msgid "A lot of traffic hits dead ends"
+msgstr "بخش زیادی از ترافیک به بن‌بست می‌خورد"
+
+#: providers/cloudflare.py:860
+#, python-format
+msgid "%(count)s requests (%(share).1f%%) got a 404."
+msgstr "%(count)s درخواست (%(share).1f٪) پاسخ 404 گرفتند."
+
+#: providers/cloudflare.py:863
+msgid ""
+"Check the top routes for broken links, and add redirects for pages that "
+"moved."
+msgstr ""
+"لینک‌های شکسته را در مسیرهای پربازدید بررسی کن و برای صفحه‌های جابه‌جاشده "
+"ریدایرکت بگذار."
+
+#: providers/cloudflare.py:876
+#, python-format
+msgid "%(count)s requests were blocked or challenged in this period."
+msgstr "%(count)s درخواست در این بازه مسدود یا چالش شدند."
+
+#: providers/cloudflare.py:880
+#, python-format
+msgid "Most-targeted path: %(path)s."
+msgstr "پرحمله‌ترین مسیر: %(path)s."
+
+#: providers/cloudflare.py:884
+msgid "The firewall has your back"
+msgstr "فایروال هوایت را دارد"
+
+#: providers/cloudflare.py:890
+msgid "Heavy firewall activity"
+msgstr "فعالیت سنگین فایروال"
+
+#: providers/cloudflare.py:893
+msgid ""
+"Review the security card; a rate limit or a stricter rule on the targeted "
+"paths can cut this noise at the edge."
+msgstr ""
+"کارت امنیت را ببین؛ یک محدودیت نرخ یا قاعده‌ی سخت‌گیرانه‌تر روی مسیرهای هدف "
+"می‌تواند این سروصدا را همان لبه قطع کند."
+
+#: providers/cloudflare.py:909
+msgid "AI crawlers take a serious slice of your traffic"
+msgstr "خزنده‌های هوش مصنوعی سهم جدی‌ای از ترافیکت دارند"
+
+#: providers/cloudflare.py:910
+#, python-format
+msgid "AI crawlers made %(count)s requests (%(share).1f%% of all traffic)."
+msgstr ""
+"خزنده‌های هوش مصنوعی %(count)s درخواست زدند (%(share).1f٪ از کل ترافیک)."
+
+#: providers/cloudflare.py:913
+msgid ""
+"Decide whether that's welcome: Cloudflare can block or rate-limit AI "
+"crawlers with a single setting."
+msgstr ""
+"تصمیم بگیر که این خوشایند هست یا نه: Cloudflare با یک تنظیم می‌تواند "
+"خزنده‌های هوش مصنوعی را مسدود یا محدود کند."
+
+#: providers/cloudflare.py:931
+msgid "Most connections still speak HTTP/1.1"
+msgstr "بیشتر اتصال‌ها هنوز HTTP/1.1 حرف می‌زنند"
+
+#: providers/cloudflare.py:932
+#, python-format
+msgid "%(share).0f%% of requests came over HTTP/1.1."
+msgstr "%(share).0f٪ از درخواست‌ها روی HTTP/1.1 آمدند."
+
+#: providers/cloudflare.py:935
+msgid ""
+"That usually means bots or very old clients; real browsers negotiate HTTP/2 "
+"or 3 on their own. Cross-check with the bots card."
+msgstr ""
+"این معمولاً یعنی ربات‌ها یا کلاینت‌های خیلی قدیمی؛ مرورگرهای واقعی خودشان "
+"HTTP/2 یا 3 را برمی‌گزینند. با کارت ربات‌ها تطبیق بده."
+
+#: providers/periods.py:18
+msgid "Last 24 hours"
+msgstr "۲۴ ساعت گذشته"
+
+#: providers/periods.py:19
+msgid "Last 7 days"
+msgstr "۷ روز گذشته"
+
+#: providers/periods.py:20
+msgid "Last 30 days"
+msgstr "۳۰ روز گذشته"
+
+#: providers/periods.py:21
+msgid "Last 3 months"
+msgstr "۳ ماه گذشته"
+
+#: providers/postgres.py:120
+msgid "manual DSN"
+msgstr "DSN دستی"
+
+#: providers/postgres.py:148
+msgid ""
+"This source reads PostgreSQL's own statistics views. Point it at a "
+"PostgreSQL database either by setting POSTGRES.DB_ALIAS to a PostgreSQL "
+"connection in DATABASES, or — when that database is not PostgreSQL — by "
+"giving POSTGRES.NAME/USER/PASSWORD/HOST/PORT (or POSTGRES.DSN) so the "
+"provider connects directly. Query-level stats additionally need the "
+"pg_stat_statements extension."
+msgstr ""
+"این منبع نماهای آماری خود PostgreSQL را می‌خواند. آن را به یک دیتابیس "
+"PostgreSQL متصل کنید: یا POSTGRES.DB_ALIAS را به یک اتصال PostgreSQL در "
+"DATABASES اشاره دهید، یا — وقتی آن دیتابیس PostgreSQL نیست — "
+"POSTGRES.NAME/USER/PASSWORD/HOST/PORT (یا POSTGRES.DSN) را مشخص کنید تا "
+"مستقیم متصل شود. آمار سطح کوئری علاوه بر این به افزونه‌ی pg_stat_statements "
+"نیاز دارد."
+
+#: providers/postgres.py:201
+msgid ""
+"A manual POSTGRES connection needs a database driver. Install one with: pip "
+"install \"django-prometric[postgres]\" (psycopg2 is also accepted if you "
+"already use it)."
+msgstr ""
+"اتصال دستی POSTGRES به درایور دیتابیس نیاز دارد. با «pip install \"django-"
+"prometric[postgres]\"» نصبش کن (psycopg2 هم اگر همین حالا استفاده می‌کنی "
+"پذیرفته است)."
+
+#: providers/postgres.py:309
+msgid ""
+"Commit, cache-hit, deadlock and temp-file figures are lifetime counters "
+"accumulated since the last statistics reset, not the selected period. They "
+"are marked with a “since” badge."
+msgstr ""
+"ارقام کامیت، برخورد کش، بن‌بست و فایل موقت شمارنده‌هایی هستند که از آخرین "
+"بازنشانی آمار انباشته شده‌اند، نه بازه‌ی انتخاب‌شده. این ارقام با نشان «از "
+"تاریخ» مشخص شده‌اند."
+
+#: providers/postgres.py:385
+msgid ""
+"Query statistics need the pg_stat_statements extension. Add it to "
+"shared_preload_libraries, restart PostgreSQL, then run CREATE EXTENSION "
+"pg_stat_statements."
+msgstr ""
+"آمار کوئری‌ها به افزونه‌ی pg_stat_statements نیاز دارد. آن را به "
+"shared_preload_libraries اضافه کن، PostgreSQL را دوباره راه‌اندازی کن و سپس "
+"CREATE EXTENSION pg_stat_statements را اجرا کن."
+
+#: providers/postgres.py:423
+msgid "Database health looks good"
+msgstr "سلامت دیتابیس خوب به نظر می‌رسد"
+
+#: providers/postgres.py:425
+msgid ""
+"Cache hit ratio, table bloat, index use and connection headroom are all "
+"within healthy ranges."
+msgstr ""
+"نسبت برخورد کش، تورم جدول‌ها، استفاده از ایندکس‌ها و ظرفیت آزاد اتصال‌ها "
+"همگی در محدوده‌ی سالم‌اند."
+
+#: providers/postgres.py:440
+msgid "Cache hit ratio is low"
+msgstr "نسبت برخورد کش پایین است"
+
+#: providers/postgres.py:442
+#, python-format
+msgid ""
+"Only %(pct).1f%% of block reads were served from the cache (since the last "
+"statistics reset)."
+msgstr ""
+"تنها %(pct).1f%% از خواندن بلوک‌ها از کش پاسخ داده شد (از آخرین بازنشانی "
+"آمار)."
+
+#: providers/postgres.py:447
+msgid ""
+"The working set may not fit in shared_buffers. Consider raising "
+"shared_buffers or reducing the data scanned per query."
+msgstr ""
+"احتمالاً داده‌های پرکاربرد در shared_buffers جا نمی‌شوند. افزایش "
+"shared_buffers یا کم‌کردن داده‌ی اسکن‌شده در هر کوئری را در نظر بگیر."
+
+#: providers/postgres.py:468
+msgid "Unused indexes are wasting space"
+msgstr "ایندکس‌های بی‌استفاده فضا هدر می‌دهند"
+
+#: providers/postgres.py:470
+#, python-format
+msgid ""
+"%(count)s index(es) were never scanned since the last stats reset, holding "
+"%(size)s. Largest: %(name)s on %(table)s."
+msgstr ""
+"%(count)s ایندکس از آخرین بازنشانی آمار هرگز اسکن نشده‌اند و %(size)s فضا "
+"گرفته‌اند. بزرگ‌ترین: %(name)s روی %(table)s."
+
+#: providers/postgres.py:480
+msgid ""
+"Confirm they are unused over a full workload cycle, then consider dropping "
+"them to reclaim space and speed up writes."
+msgstr ""
+"اول در یک چرخه‌ی کاری کامل مطمئن شو استفاده نمی‌شوند، بعد برای آزادکردن فضا "
+"و سریع‌ترشدن نوشتن‌ها حذفشان را در نظر بگیر."
+
+#: providers/postgres.py:504
+msgid "Some tables are bloated with dead rows"
+msgstr "بعضی جدول‌ها از ردیف‌های مرده متورم شده‌اند"
+
+#: providers/postgres.py:506
+#, python-format
+msgid ""
+"%(name)s is %(pct).0f%% dead tuples and has not been autovacuumed recently."
+msgstr "%(pct).0f%% از %(name)s ردیف مرده است و اخیراً autovacuum نشده."
+
+#: providers/postgres.py:510
+msgid ""
+"Run VACUUM (ANALYZE) on it, and tune autovacuum thresholds if it bloats "
+"again."
+msgstr ""
+"رویش VACUUM (ANALYZE) اجرا کن و اگر دوباره متورم شد آستانه‌های autovacuum را"
+" تنظیم کن."
+
+#: providers/postgres.py:527 providers/sentry.py:393
+msgid "Some database queries are slow"
+msgstr "بعضی کوئری‌های دیتابیس کندند"
+
+#: providers/postgres.py:528 providers/sentry.py:394
+#, python-format
+msgid "The worst averages %(avg)dms over %(calls)s calls: %(query)s"
+msgstr ""
+"بدترینشان به‌طور میانگین %(avg)d میلی‌ثانیه در %(calls)s فراخوانی: %(query)s"
+
+#: providers/postgres.py:535
+msgid ""
+"Add an index for its filter columns or rework the query — the full list is "
+"in the slowest-queries card."
+msgstr ""
+"برای ستون‌های فیلترش ایندکس اضافه کن یا کوئری را بازنویسی کن — فهرست کامل در"
+" کارت کندترین کوئری‌هاست."
+
+#: providers/postgres.py:550
+msgid "Connection slots are nearly exhausted"
+msgstr "ظرفیت اتصال‌ها تقریباً پر شده است"
+
+#: providers/postgres.py:551
+#, python-format
+msgid "%(used)s of %(max)s connections are in use (%(pct).0f%%)."
+msgstr "%(used)s از %(max)s اتصال در حال استفاده است (%(pct).0f%%)."
+
+#: providers/postgres.py:554
+msgid ""
+"Add a connection pooler such as PgBouncer, or lower the application's pool "
+"size, before new connections are refused."
+msgstr ""
+"پیش از آنکه اتصال‌های جدید رد شوند، یک pooler مانند PgBouncer اضافه کن یا "
+"اندازه‌ی pool برنامه را کم کن."
+
+#: providers/sentry.py:57
+msgid "Application performance"
+msgstr "کارایی برنامه"
+
+#: providers/sentry.py:82
+#, python-format
+msgid ""
+"Set the %(token)s and %(org)s environment variables to a Sentry auth token "
+"with org:read and event:read scopes and your organization slug, then restart"
+" the server."
+msgstr ""
+"متغیرهای محیطی %(token)s و %(org)s را با یک توکن احراز هویت سنتری دارای "
+"دسترسی‌های org:read و event:read و نامک (slug) سازمان خود مقداردهی کنید و "
+"سرور را دوباره راه‌اندازی کنید."
+
+#: providers/sentry.py:114
+msgid "Sentry rejected the auth token. Check its scopes."
+msgstr "سنتری توکن احراز هویت را نپذیرفت. دسترسی‌های آن را بررسی کنید."
+
+#: providers/sentry.py:118
+msgid "Sentry rate limit reached; try again shortly."
+msgstr "به محدودیت درخواست‌های سنتری رسیدید؛ کمی بعد دوباره تلاش کنید."
+
+#: providers/sentry.py:126
+#, python-format
+msgid "Sentry API returned HTTP %(code)s. %(detail)s"
+msgstr "‏API سنتری پاسخ HTTP %(code)s برگرداند. %(detail)s"
+
+#: providers/sentry.py:134
+#, python-format
+msgid "Could not reach the Sentry API: %(reason)s"
+msgstr "دسترسی به API سنتری ممکن نشد: %(reason)s"
+
+#: providers/sentry.py:292 providers/sentry.py:293 providers/sentry.py:412
+msgid "Database"
+msgstr "دیتابیس"
+
+#: providers/sentry.py:294
+msgid "Redis"
+msgstr "Redis"
+
+#: providers/sentry.py:298
+msgid "Templates"
+msgstr "تمپلیت‌ها"
+
+#: providers/sentry.py:299
+msgid "View rendering"
+msgstr "رندر ویو"
+
+#: providers/sentry.py:300
+msgid "External HTTP"
+msgstr "HTTP بیرونی"
+
+#: providers/sentry.py:301
+msgid "Signals"
+msgstr "سیگنال‌ها"
+
+#: providers/sentry.py:302
+msgid "Middleware"
+msgstr "میان‌افزار"
+
+#: providers/sentry.py:370
+#, python-format
+msgid "Sentry detected %(count)s repeated-query (N+1) problems"
+msgstr "Sentry تعداد %(count)s مشکل کوئری تکرارشونده (N+1) پیدا کرد"
+
+#: providers/sentry.py:372
+#, python-format
+msgid "Worst offender: %(culprit)s."
+msgstr "بدترین مورد: %(culprit)s."
+
+#: providers/sentry.py:375
+msgid ""
+"Load the related objects up front with select_related() or "
+"prefetch_related() instead of querying inside a loop."
+msgstr ""
+"به‌جای کوئری‌زدن داخل حلقه، آبجکت‌های مرتبط را از همان اول با "
+"select_related() یا prefetch_related() بگیر."
+
+#: providers/sentry.py:401
+msgid ""
+"Add an index for its filter columns, or rework the query — the full list is "
+"in the slowest-queries card."
+msgstr ""
+"برای ستون‌های فیلترش ایندکس اضافه کن یا کوئری را بازنویسی کن — فهرست کامل در"
+" کارت کندترین کوئری‌هاست."
+
+#: providers/sentry.py:418
+msgid "Requests spend most of their time in the database"
+msgstr "درخواست‌ها بیشتر وقتشان را در دیتابیس می‌گذرانند"
+
+#: providers/sentry.py:419
+#, python-format
+msgid "%(share).0f%% of total request time went to database queries."
+msgstr "%(share).0f٪ از کل زمان درخواست‌ها صرف کوئری‌های دیتابیس شد."
+
+#: providers/sentry.py:422
+msgid ""
+"Cache repeated lookups and check the slowest-queries card for what to "
+"optimise first."
+msgstr ""
+"جستجوهای تکراری را کش کن و از کارت کندترین کوئری‌ها ببین اول چه چیزی را "
+"بهینه کنی."
+
+#: providers/sentry.py:438
+msgid "A worrying share of requests fail"
+msgstr "سهم نگران‌کننده‌ای از درخواست‌ها شکست می‌خورند"
+
+#: providers/sentry.py:439
+#, python-format
+msgid "%(share).1f%% of %(requests)s transactions ended in an error."
+msgstr "%(share).1f٪ از %(requests)s تراکنش به خطا ختم شدند."
+
+#: providers/sentry.py:441
+msgid "Start with the top entries of the application errors list."
+msgstr "از موارد بالای فهرست خطاهای برنامه شروع کن."
+
+#: providers/sentry.py:446
+#, python-format
+msgid "The slowest 5%% of requests take over %(p95).0fms."
+msgstr "کندترین ۵٪ درخواست‌ها بیش از %(p95).0f میلی‌ثانیه طول می‌کشند."
+
+#: providers/sentry.py:448
+#, python-format
+msgid "Slowest route: %(route)s."
+msgstr "کندترین مسیر: %(route)s."
+
+#: providers/sentry.py:452
+msgid "Tail latency is high"
+msgstr "تأخیر دنباله بالاست"
+
+#: providers/sentry.py:454
+msgid "Profile that route; the slowest-queries card often names the cause."
+msgstr ""
+"آن مسیر را پروفایل کن؛ کارت کندترین کوئری‌ها معمولاً مقصر را نشان می‌دهد."
+
+#: providers/sentry.py:461
+msgid "Application latency looks healthy"
+msgstr "تأخیر برنامه سالم به نظر می‌رسد"
+
+#: providers/sentry.py:462
+#, python-format
+msgid "p95 is %(p95).0fms across %(requests)s transactions."
+msgstr "p95 روی %(requests)s تراکنش برابر %(p95).0f میلی‌ثانیه است."
+
+#: snapshots.py:102 templates/django_prometric/components/overview.html:7
+#: templates/django_prometric/components/slowest.html:11
 #: templates/django_prometric/components/top_routes.html:15
-#: templates/django_prometric/route_detail.html:34
-#: templates/django_prometric/routes.html:61
-#: templates/django_prometric/snapshot_detail.html:79
-#: templates/django_prometric/snapshots.html:31
+#: templates/django_prometric/route/performance.html:11
+#: templates/django_prometric/route/traffic.html:10
+#: templates/django_prometric/routes.html:66
+#: templates/django_prometric/snapshot_detail.html:57
+#: templates/django_prometric/snapshot_detail.html:83
 msgid "Requests"
 msgstr "درخواست‌ها"
 
-#: snapshots.py:74 templates/django_prometric/components/overview.html:11
+#: snapshots.py:103 templates/django_prometric/components/overview.html:13
 msgid "Unique visitors"
 msgstr "بازدیدکنندگان یکتا"
 
-#: snapshots.py:75 templates/django_prometric/components/overview.html:15
+#: snapshots.py:104 templates/django_prometric/components/overview.html:20
 msgid "Page views"
 msgstr "بازدید صفحات"
 
-#: snapshots.py:76 templates/django_prometric/components/overview.html:19
+#: snapshots.py:105 templates/django_prometric/components/overview.html:27
 #: templates/django_prometric/components/top_routes.html:16
-#: templates/django_prometric/route_detail.html:42
-#: templates/django_prometric/routes.html:62
-#: templates/django_prometric/snapshot_detail.html:80
+#: templates/django_prometric/route/traffic.html:18
+#: templates/django_prometric/routes.html:67
+#: templates/django_prometric/snapshot_detail.html:58
 msgid "Bandwidth"
 msgstr "پهنای باند"
 
-#: snapshots.py:77
+#: snapshots.py:106
 msgid "Cached requests"
 msgstr "درخواست‌های کش‌شده"
 
-#: snapshots.py:78 templates/django_prometric/components/overview.html:28
-#: templates/django_prometric/route_detail.html:46
-msgid "Errors"
-msgstr "خطاها"
-
-#: snapshots.py:79 templates/django_prometric/components/overview.html:33
+#: snapshots.py:108 templates/django_prometric/components/overview.html:53
 msgid "Threats"
 msgstr "تهدیدها"
 
-#: snapshots.py:80
-msgid "Avg response time"
-msgstr "میانگین زمان پاسخ"
+#: snapshots.py:113
+msgid "Transactions"
+msgstr "تراکنش‌ها"
 
-#: templates/django_prometric/base.html:25
+#: snapshots.py:114
+msgid "p50"
+msgstr "p50"
+
+#: snapshots.py:115
+msgid "p75"
+msgstr "p75"
+
+#: snapshots.py:116
+msgid "p95"
+msgstr "p95"
+
+#: snapshots.py:117
+msgid "p99"
+msgstr "p99"
+
+#: snapshots.py:133
+msgid "Metric"
+msgstr "شاخص"
+
+#: snapshots.py:163
+msgid "Requests by route"
+msgstr "درخواست‌ها به تفکیک مسیر"
+
+#: snapshots.py:164
+msgid "p95 by route"
+msgstr "p95 به تفکیک مسیر"
+
+#: snapshots.py:168 templates/django_prometric/components/slowest.html:10
+#: templates/django_prometric/components/top_routes.html:14
+#: templates/django_prometric/routes.html:63
+#: templates/django_prometric/snapshot_detail.html:56
+msgid "Route"
+msgstr "مسیر"
+
+#: templates/django_prometric/_comparison.html:22
+msgid "baseline"
+msgstr "مبنا"
+
+#: templates/django_prometric/_load_error.html:4
+#: templates/django_prometric/base.html:22
+#: templates/django_prometric/routes.html:21
+msgid "Try again"
+msgstr "تلاش دوباره"
+
+#: templates/django_prometric/_period.html:7
+msgid "Period"
+msgstr "بازه"
+
+#: templates/django_prometric/_period.html:11
+msgid "Custom range…"
+msgstr "بازه‌ی دلخواه…"
+
+#: templates/django_prometric/_period.html:15
+msgid "From date"
+msgstr "از تاریخ"
+
+#: templates/django_prometric/_period.html:18
+msgid "To date"
+msgstr "تا تاریخ"
+
+#: templates/django_prometric/_period.html:19
+msgid "Apply"
+msgstr "اعمال"
+
+#: templates/django_prometric/base.html:21
+msgid "Couldn't reach the server for this data."
+msgstr "دریافت این داده از سرور ممکن نشد."
+
+#: templates/django_prometric/base.html:39
 msgid "Sections"
 msgstr "بخش‌ها"
 
+#: templates/django_prometric/base.html:49
+msgid "Switch between light and dark theme"
+msgstr "جابه‌جایی بین تم روشن و تاریک"
+
 #: templates/django_prometric/components/_bars.html:18
-#: templates/django_prometric/components/performance.html:23
+#: templates/django_prometric/components/audience.html:19
+#: templates/django_prometric/components/country.html:20
+#: templates/django_prometric/components/network.html:15
+#: templates/django_prometric/components/performance.html:26
+#: templates/django_prometric/components/slowest.html:39
 msgid "No data in this period."
 msgstr "در این بازه داده‌ای نیست."
 
-#: templates/django_prometric/components/overview.html:23
+#: templates/django_prometric/components/_cumulative.html:8
+msgid "Accumulated since the last statistics reset — not the selected period."
+msgstr "انباشته از آخرین بازنشانی آمار — نه بازه‌ی انتخاب‌شده."
+
+#: templates/django_prometric/components/_cumulative.html:8
+#, python-format
+msgid "since %(when)s"
+msgstr "از %(when)s"
+
+#: templates/django_prometric/components/audience.html:7
+msgid "Devices"
+msgstr "دستگاه‌ها"
+
+#: templates/django_prometric/components/audience.html:11
+msgid "Browsers"
+msgstr "مرورگرها"
+
+#: templates/django_prometric/components/audience.html:15
+msgid "Operating systems"
+msgstr "سیستم‌عامل‌ها"
+
+#: templates/django_prometric/components/backend.html:6
+msgid "Total time spent inside the application, by kind of work."
+msgstr "کل زمان صرف‌شده داخل برنامه، به تفکیک نوع کار."
+
+#: templates/django_prometric/components/backend.html:17
+msgid "No spans were recorded in this period."
+msgstr "در این بازه هیچ اسپنی ثبت نشده است."
+
+#: templates/django_prometric/components/bots.html:8
+msgid "People versus verified bots"
+msgstr "انسان‌ها در برابر ربات‌های تأییدشده"
+
+#: templates/django_prometric/components/bots.html:12
+#, python-format
+msgid "%(count)s requests came from crawlers Cloudflare has verified"
+msgstr ""
+"%(count)s درخواست از خزنده‌هایی آمد که Cloudflare هویتشان را تأیید کرده"
+
+#: templates/django_prometric/components/bots.html:17
+msgid "By crawler type"
+msgstr "به تفکیک نوع خزنده"
+
+#: templates/django_prometric/components/bots.html:21
+#: templates/django_prometric/components/traffic.html:9
+msgid "No traffic in this period."
+msgstr "در این بازه ترافیکی نبود."
+
+#: templates/django_prometric/components/country.html:8
+msgid "Requests by country"
+msgstr "درخواست‌ها به تفکیک کشور"
+
+#: templates/django_prometric/components/database.html:8
+msgid "Database size"
+msgstr "اندازه‌ی دیتابیس"
+
+#: templates/django_prometric/components/database.html:14
+#, python-format
+msgid "~%(rows)s live rows"
+msgstr "حدود %(rows)s ردیف زنده"
+
+#: templates/django_prometric/components/database.html:21
+msgid "Connections"
+msgstr "اتصال‌ها"
+
+#: templates/django_prometric/components/database.html:26
+msgid "Cache hit ratio"
+msgstr "نسبت برخورد کش"
+
+#: templates/django_prometric/components/database.html:33
+msgid "Commits"
+msgstr "کامیت‌ها"
+
+#: templates/django_prometric/components/database.html:35
+#, python-format
+msgid "%(rolled)s rolled back"
+msgstr "%(rolled)s بازگردانده شده"
+
+#: templates/django_prometric/components/database.html:40
+msgid "Deadlocks"
+msgstr "بن‌بست‌ها"
+
+#: templates/django_prometric/components/database.html:47
+msgid "Temp files"
+msgstr "فایل‌های موقت"
+
+#: templates/django_prometric/components/database.html:53
+msgid ""
+"Sizes and counts are current; badged figures are lifetime counters since the"
+" last statistics reset."
+msgstr ""
+"اندازه‌ها و تعدادها لحظه‌ای‌اند؛ ارقام نشان‌دار شمارنده‌های انباشته از آخرین"
+" بازنشانی آمارند."
+
+#: templates/django_prometric/components/database.html:55
+msgid "No database statistics are available."
+msgstr "هیچ آماری از دیتابیس در دسترس نیست."
+
+#: templates/django_prometric/components/indexes.html:7
+msgid "Unused indexes"
+msgstr "ایندکس‌های بی‌استفاده"
+
+#: templates/django_prometric/components/indexes.html:8
+#, python-format
+msgid "%(total)s reclaimable"
+msgstr "%(total)s قابل بازیابی"
+
+#: templates/django_prometric/components/indexes.html:14
+#: templates/django_prometric/components/indexes.html:41
+msgid "Index"
+msgstr "ایندکس"
+
+#: templates/django_prometric/components/indexes.html:15
+#: templates/django_prometric/components/tables.html:10
+msgid "Table"
+msgstr "جدول"
+
+#: templates/django_prometric/components/indexes.html:16
+#: templates/django_prometric/components/indexes.html:43
+#: templates/django_prometric/components/tables.html:11
+msgid "Size"
+msgstr "اندازه"
+
+#: templates/django_prometric/components/indexes.html:30
+msgid ""
+"Never scanned since the last statistics reset (primary-key and unique "
+"indexes excluded). Confirm over a full workload before dropping."
+msgstr ""
+"از آخرین بازنشانی آمار هرگز اسکن نشده‌اند (ایندکس‌های کلید اصلی و یکتا "
+"مستثنا هستند). پیش از حذف، در یک چرخه‌ی کاری کامل مطمئن شو."
+
+#: templates/django_prometric/components/indexes.html:32
+msgid "No unused indexes — every index is earning its space."
+msgstr "ایندکس بی‌استفاده‌ای نیست — همه‌ی ایندکس‌ها ارزش فضایشان را دارند."
+
+#: templates/django_prometric/components/indexes.html:36
+msgid "Most-used indexes"
+msgstr "پراستفاده‌ترین ایندکس‌ها"
+
+#: templates/django_prometric/components/indexes.html:42
+msgid "Scans"
+msgstr "اسکن‌ها"
+
+#: templates/django_prometric/components/indexes.html:57
+msgid "Scan counts are lifetime totals since the last statistics reset."
+msgstr "تعداد اسکن‌ها مجموع انباشته از آخرین بازنشانی آمار است."
+
+#: templates/django_prometric/components/insights.html:22
+msgid "Nothing stands out in this period."
+msgstr "در این بازه چیز چشمگیری نیست."
+
+#: templates/django_prometric/components/issues.html:10
+msgid "Error"
+msgstr "خطا"
+
+#: templates/django_prometric/components/issues.html:11
+msgid "Events"
+msgstr "رخدادها"
+
+#: templates/django_prometric/components/issues.html:34
+msgid "No unresolved errors in this period. Nice."
+msgstr "در این بازه خطای حل‌نشده‌ای نیست. عالی."
+
+#: templates/django_prometric/components/network.html:7
+msgid "HTTP versions"
+msgstr "نسخه‌های HTTP"
+
+#: templates/django_prometric/components/network.html:11
+msgid "TLS versions"
+msgstr "نسخه‌های TLS"
+
+#: templates/django_prometric/components/overview.html:34
 msgid "Cache ratio"
 msgstr "نسبت کش"
 
-#: templates/django_prometric/components/overview.html:25
+#: templates/django_prometric/components/overview.html:36
 #, python-format
 msgid "%(cached)s cached"
 msgstr "%(cached)s کش‌شده"
 
-#: templates/django_prometric/components/performance.html:6
+#: templates/django_prometric/components/overview.html:60
+msgid "Coloured changes compare against the window right before this one."
+msgstr "تغییرات رنگی با بازه‌ی بلافاصله قبل از این بازه مقایسه می‌شوند."
+
+#: templates/django_prometric/components/performance.html:23
+#, python-format
+msgid "Measured over %(requests)s transactions."
+msgstr "سنجیده‌شده روی %(requests)s تراکنش."
+
+#: templates/django_prometric/components/queries.html:9
+msgid "Query"
+msgstr "کوئری"
+
+#: templates/django_prometric/components/queries.html:10
+msgid "Calls"
+msgstr "فراخوانی‌ها"
+
+#: templates/django_prometric/components/queries.html:11
+msgid "Avg"
+msgstr "میانگین"
+
+#: templates/django_prometric/components/queries.html:12
+msgid "Total time"
+msgstr "زمان کل"
+
+#: templates/django_prometric/components/queries.html:26
 msgid ""
-"Response-time percentiles aren't available from the current data source or "
-"plan."
-msgstr "صدک‌های زمان پاسخ در منبع داده یا پلن فعلی در دسترس نیستند."
+"Ranked by total time cost — the top entry is where optimisation pays off "
+"first."
+msgstr ""
+"بر اساس هزینه‌ی زمانی کل مرتب شده — بهینه‌سازی از مورد اول بیشترین بازده را "
+"دارد."
 
-#: templates/django_prometric/components/performance.html:10
-#: templates/django_prometric/route_detail.html:77
-msgid "TTFB p50"
-msgstr "TTFB p50"
+#: templates/django_prometric/components/queries.html:28
+msgid "No database queries were recorded in this period."
+msgstr "در این بازه هیچ کوئری دیتابیسی ثبت نشده است."
 
-#: templates/django_prometric/components/performance.html:14
-#: templates/django_prometric/route_detail.html:81
-msgid "TTFB p95"
-msgstr "TTFB p95"
+#: templates/django_prometric/components/security.html:7
+msgid "Mitigated requests"
+msgstr "درخواست‌های مهارشده"
 
-#: templates/django_prometric/components/performance.html:18
-#: templates/django_prometric/route_detail.html:85
-msgid "TTFB p99"
-msgstr "TTFB p99"
+#: templates/django_prometric/components/security.html:9
+msgid "challenged or blocked by the firewall in this period"
+msgstr "در این بازه توسط فایروال چالش یا مسدود شده‌اند"
+
+#: templates/django_prometric/components/security.html:13
+msgid "By action"
+msgstr "به تفکیک اقدام"
+
+#: templates/django_prometric/components/security.html:26
+msgid "By defence"
+msgstr "به تفکیک لایه‌ی دفاعی"
+
+#: templates/django_prometric/components/security.html:39
+msgid "Most-targeted paths"
+msgstr "پرحمله‌ترین مسیرها"
+
+#: templates/django_prometric/components/security.html:52
+msgid "Nothing was blocked or challenged in this period."
+msgstr "در این بازه ترافیکی با مسیرهای شما مطابقت نداشت."
+
+#: templates/django_prometric/components/seo.html:7
+msgid "Crawler visits"
+msgstr "بازدید خزنده‌ها"
+
+#: templates/django_prometric/components/seo.html:9
+msgid "requests by verified search-engine crawlers"
+msgstr "درخواست از خزنده‌های تأییدشده‌ی موتورهای جستجو"
+
+#: templates/django_prometric/components/seo.html:13
+msgid "By engine"
+msgstr "به تفکیک موتور"
+
+#: templates/django_prometric/components/seo.html:18
+msgid "Most-crawled pages"
+msgstr "پرخزیده‌ترین صفحه‌ها"
+
+#: templates/django_prometric/components/seo.html:31
+msgid "No search-engine crawler visited in this period."
+msgstr "در این بازه هیچ خزنده‌ی موتور جستجویی سر نزد."
+
+#: templates/django_prometric/components/tables.html:12
+msgid "Rows"
+msgstr "ردیف‌ها"
+
+#: templates/django_prometric/components/tables.html:13
+msgid "Dead"
+msgstr "مرده"
+
+#: templates/django_prometric/components/tables.html:14
+msgid "Last autovacuum"
+msgstr "آخرین autovacuum"
+
+#: templates/django_prometric/components/tables.html:24
+msgid "never"
+msgstr "هرگز"
+
+#: templates/django_prometric/components/tables.html:30
+msgid ""
+"Largest tables first. A high dead-row share with no recent autovacuum is a "
+"bloat warning."
+msgstr ""
+"بزرگ‌ترین جدول‌ها اول. سهم بالای ردیف‌های مرده بدون autovacuum اخیر، هشدار "
+"تورم است."
+
+#: templates/django_prometric/components/tables.html:32
+msgid "No user tables were found."
+msgstr "جدول کاربری‌ای پیدا نشد."
 
 #: templates/django_prometric/components/top_routes.html:5
 msgid "All routes"
 msgstr "همه‌ی مسیرها"
-
-#: templates/django_prometric/components/top_routes.html:14
-#: templates/django_prometric/routes.html:58
-#: templates/django_prometric/snapshot_detail.html:78
-msgid "Route"
-msgstr "مسیر"
 
 #: templates/django_prometric/components/top_routes.html:32
 #, python-format
 msgid "%(counter)s more path (%(requests)s requests) doesn't match any route."
 msgid_plural ""
 "%(counter)s more paths (%(requests)s requests) don't match any route."
-msgstr[0] "%(counter)s مسیر دیگر (%(requests)s درخواست) با هیچ مسیری مطابقت ندارد."
-msgstr[1] "%(counter)s مسیر دیگر (%(requests)s درخواست) با هیچ مسیری مطابقت ندارند."
+msgstr[0] ""
+"%(counter)s مسیر دیگر (%(requests)s درخواست) با هیچ مسیری مطابقت ندارد."
+msgstr[1] ""
+"%(counter)s مسیر دیگر (%(requests)s درخواست) با هیچ مسیری مطابقت ندارند."
 
 #: templates/django_prometric/components/top_routes.html:36
 msgid "No traffic matched your routes in this period."
 msgstr "در این بازه ترافیکی با مسیرهای شما مطابقت نداشت."
 
 #: templates/django_prometric/components/traffic.html:7
-#: templates/django_prometric/route_detail.html:66
+#: templates/django_prometric/route/traffic.html:43
 msgid "Requests over time"
-msgstr "درخواست‌ها در طول زمان"
-
-#: templates/django_prometric/components/traffic.html:9
-#: templates/django_prometric/route_detail.html:68
-msgid "No traffic in this period."
-msgstr "در این بازه ترافیکی نبود."
+msgstr "درخواست‌ها در گذر زمان"
 
 #: templates/django_prometric/dashboard.html:4
 #: templates/django_prometric/dashboard.html:5
-#: templates/django_prometric/onboarding.html:5
 msgid "Dashboard"
 msgstr "داشبورد"
 
-#: templates/django_prometric/dashboard.html:9
-#: templates/django_prometric/route_detail.html:18
-#: templates/django_prometric/routes.html:41
-#: templates/django_prometric/snapshots.html:11
-#: templates/django_prometric/snapshots.html:28
-msgid "Period"
-msgstr "بازه"
-
-#: templates/django_prometric/dashboard.html:18
+#: templates/django_prometric/dashboard.html:14
+#: templates/django_prometric/provider_detail.html:21
 msgid "Refresh"
 msgstr "به‌روزرسانی"
 
-#: templates/django_prometric/dashboard.html:23
-#: templates/django_prometric/snapshots.html:16
-msgid "Save snapshot"
-msgstr "ذخیره‌ی اسنپ‌شات"
+#: templates/django_prometric/dashboard.html:18
+msgid "Customize"
+msgstr "شخصی‌سازی"
 
-#: templates/django_prometric/onboarding.html:4
-msgid "Setup"
-msgstr "راه‌اندازی"
+#: templates/django_prometric/dashboard.html:26
+msgid "Cards on this page"
+msgstr "کارت‌های این صفحه"
 
-#: templates/django_prometric/onboarding.html:9
-msgid "Connect your analytics"
-msgstr "منبع آمار خود را متصل کنید"
+#: templates/django_prometric/dashboard.html:36
+msgid "Move earlier"
+msgstr "ببر جلوتر"
 
-#: templates/django_prometric/onboarding.html:17
-#, python-format
+#: templates/django_prometric/dashboard.html:39
+msgid "Move later"
+msgstr "ببر عقب‌تر"
+
+#: templates/django_prometric/dashboard.html:57
 msgid ""
-"Meanwhile, you can already <a href=\"%(routes_url)s\">browse the routes</a> "
-"of this project."
+"No cards to show — the configured data sources answered nothing for this "
+"period."
 msgstr ""
-"در همین حین می‌توانید <a href=\"%(routes_url)s\">مسیرهای این پروژه</a> را "
-"مرور کنید."
+"کارتی برای نمایش نیست — منابع داده‌ی پیکربندی‌شده برای این بازه پاسخی "
+"نداشتند."
 
-#: templates/django_prometric/route_detail.html:38
+#: templates/django_prometric/provider_detail.html:35
+msgid "This source answered nothing for this period."
+msgstr "این منبع برای این بازه پاسخی نداشت."
+
+#: templates/django_prometric/provider_detail.html:41
+#: templates/django_prometric/providers.html:16
+msgid "Not configured"
+msgstr "پیکربندی نشده"
+
+#: templates/django_prometric/providers.html:4
+msgid "Providers"
+msgstr "پروایدرها"
+
+#: templates/django_prometric/providers.html:5
+msgid "Data sources"
+msgstr "منابع داده"
+
+#: templates/django_prometric/providers.html:14
+msgid "Connected"
+msgstr "متصل"
+
+#: templates/django_prometric/providers.html:30
+#, python-format
+msgid "Looks back up to %(days)s days."
+msgstr "تا %(days)s روز گذشته را پوشش می‌دهد."
+
+#: templates/django_prometric/providers.html:35
+msgid "View stats"
+msgstr "مشاهده‌ی آمار"
+
+#: templates/django_prometric/route/performance.html:10
+#: templates/django_prometric/snapshot_detail.html:82
+msgid "Transaction"
+msgstr "تراکنش"
+
+#: templates/django_prometric/route/performance.html:36
+msgid "No Sentry transactions matched this route in the selected period."
+msgstr "در بازه‌ی انتخابی هیچ تراکنش سنتری با این مسیر مطابقت نداشت."
+
+#: templates/django_prometric/route/performance.html:38
+msgid ""
+"Transactions appear once the route receives traffic while the Sentry SDK's "
+"tracing is enabled."
+msgstr ""
+"تراکنش‌ها وقتی نمایان می‌شوند که مسیر در حالی که tracing در SDK سنتری فعال "
+"است ترافیک بگیرد."
+
+#: templates/django_prometric/route/traffic.html:14
 msgid "Visits"
 msgstr "بازدیدها"
 
-#: templates/django_prometric/route_detail.html:51
+#: templates/django_prometric/route/traffic.html:27
 msgid "Last seen"
 msgstr "آخرین بازدید"
 
-#: templates/django_prometric/route_detail.html:101
-#: templates/django_prometric/routes.html:60
+#: templates/django_prometric/route/traffic.html:50
+msgid "Edge performance"
+msgstr "کارایی Edge"
+
+#: templates/django_prometric/route/traffic.html:53
+msgid "TTFB p50"
+msgstr "TTFB p50"
+
+#: templates/django_prometric/route/traffic.html:57
+msgid "TTFB p95"
+msgstr "TTFB p95"
+
+#: templates/django_prometric/route/traffic.html:61
+msgid "TTFB p99"
+msgstr "TTFB p99"
+
+#: templates/django_prometric/route/traffic.html:77
+#: templates/django_prometric/routes.html:65
 msgid "Methods"
 msgstr "متدها"
 
-#: templates/django_prometric/route_detail.html:111
-msgid "Connect a data source to see analytics for this route."
-msgstr "برای دیدن آمار این مسیر، یک منبع داده متصل کنید."
+#: templates/django_prometric/route/traffic.html:87
+msgid "Cloudflare recorded no requests for this route in the selected period."
+msgstr "کلادفلر در بازه‌ی انتخابی درخواستی برای این مسیر ثبت نکرده است."
+
+#: templates/django_prometric/route/traffic.html:89
+msgid ""
+"If the whole site has traffic but routes stay empty, this app is probably "
+"served on a hostname the zone does not proxy — check the HOSTS setting under"
+" CLOUDFLARE, and whether the DNS record is proxied (orange cloud)."
+msgstr ""
+"اگر کل سایت ترافیک دارد اما مسیرها خالی می‌مانند، این اپ احتمالاً روی هاستی "
+"سرو می‌شود که zone آن را proxy نمی‌کند — تنظیم HOSTS زیر CLOUDFLARE و proxy "
+"بودن رکورد DNS (ابر نارنجی) را بررسی کنید."
+
+#: templates/django_prometric/route_detail.html:42
+msgid "No data source is configured for route details."
+msgstr "هیچ منبع داده‌ای برای جزئیات مسیر پیکربندی نشده است."
+
+#: templates/django_prometric/route_detail.html:43
+msgid "Set up a provider"
+msgstr "راه‌اندازی یک پروایدر"
 
 #: templates/django_prometric/routes.html:4
 #: templates/django_prometric/routes.html:5
@@ -314,31 +1339,31 @@ msgstr ""
 msgid "Invalid pattern in your route filters: %(config_error)s"
 msgstr "الگوی نامعتبر در فیلترهای مسیر شما: %(config_error)s"
 
-#: templates/django_prometric/routes.html:23
+#: templates/django_prometric/routes.html:27
 msgid "Route groups"
 msgstr "گروه‌های مسیر"
 
-#: templates/django_prometric/routes.html:25
+#: templates/django_prometric/routes.html:29
 msgid "All"
 msgstr "همه"
 
-#: templates/django_prometric/routes.html:27
+#: templates/django_prometric/routes.html:31
 msgid "API"
 msgstr "API"
 
-#: templates/django_prometric/routes.html:29
+#: templates/django_prometric/routes.html:33
 msgid "Pages"
 msgstr "صفحات"
 
-#: templates/django_prometric/routes.html:32
+#: templates/django_prometric/routes.html:36
 msgid "Admin"
 msgstr "ادمین"
 
-#: templates/django_prometric/routes.html:39
+#: templates/django_prometric/routes.html:43
 msgid "Filter routes — regex works"
 msgstr "فیلتر مسیرها — regex هم کار می‌کند"
 
-#: templates/django_prometric/routes.html:40
+#: templates/django_prometric/routes.html:44
 msgid "Filter routes"
 msgstr "فیلتر مسیرها"
 
@@ -346,43 +1371,83 @@ msgstr "فیلتر مسیرها"
 msgid "Admin routes"
 msgstr "مسیرهای ادمین"
 
-#: templates/django_prometric/routes.html:59
+#: templates/django_prometric/routes.html:54
+msgid "Hidden"
+msgstr "پنهان‌شده‌ها"
+
+#: templates/django_prometric/routes.html:62
+msgid "Pick routes to hide"
+msgstr "انتخاب مسیرها برای پنهان‌کردن"
+
+#: templates/django_prometric/routes.html:64
 msgid "Group"
 msgstr "گروه"
 
-#: templates/django_prometric/routes.html:78
+#: templates/django_prometric/routes.html:75
+#, python-format
+msgid "Pick %(route)s"
+msgstr "انتخاب %(route)s"
+
+#: templates/django_prometric/routes.html:87
 msgid "No routes match this filter."
 msgstr "هیچ مسیری با این فیلتر مطابقت ندارد."
 
-#: templates/django_prometric/routes.html:86
-#, python-format
+#: templates/django_prometric/routes.html:96
+msgid "Selected:"
+msgstr "انتخاب‌شده:"
+
+#: templates/django_prometric/routes.html:97
+msgid "Hide"
+msgstr "پنهان کن"
+
+#: templates/django_prometric/routes.html:98
+msgid "Unhide"
+msgstr "از پنهانی درآور"
+
+#: templates/django_prometric/snapshot_compare.html:4
+#: templates/django_prometric/snapshot_compare.html:5
+msgid "Compare snapshots"
+msgstr "مقایسه‌ی اسنپ‌شات‌ها"
+
+#: templates/django_prometric/snapshot_compare.html:16
+msgid "Compare against"
+msgstr "مقایسه با"
+
+#: templates/django_prometric/snapshot_compare.html:30
 msgid ""
-"%(counter)s path (%(requests)s requests) was served but doesn't match any "
-"route above."
-msgid_plural ""
-"%(counter)s paths (%(requests)s requests) were served but don't match any "
-"route above."
-msgstr[0] ""
-"%(counter)s مسیر (%(requests)s درخواست) پاسخ داده شد اما با هیچ‌یک از "
-"مسیرهای بالا مطابقت ندارد."
-msgstr[1] ""
-"%(counter)s مسیر (%(requests)s درخواست) پاسخ داده شدند اما با هیچ‌یک از "
-"مسیرهای بالا مطابقت ندارند."
+"The route filters differ between these snapshots, so route-level numbers may"
+" not be directly comparable."
+msgstr ""
+"فیلترهای مسیر بین این اسنپ‌شات‌ها متفاوت است؛ اعداد سطح مسیر شاید مستقیم "
+"قابل مقایسه نباشند."
+
+#: templates/django_prometric/snapshot_compare.html:48
+msgid "vs baseline"
+msgstr "نسبت به مبنا"
+
+#: templates/django_prometric/snapshot_compare.html:65
+msgid "These snapshots share no comparable metrics."
+msgstr "این اسنپ‌شات‌ها شاخص مشترکی برای مقایسه ندارند."
 
 #: templates/django_prometric/snapshot_detail.html:4
 #: templates/django_prometric/snapshot_detail.html:5
 msgid "Snapshot"
 msgstr "اسنپ‌شات"
 
-#: templates/django_prometric/snapshot_detail.html:17
+#: templates/django_prometric/snapshot_detail.html:13
+#, python-format
+msgid "taken %(taken)s"
+msgstr "ثبت‌شده در %(taken)s"
+
+#: templates/django_prometric/snapshot_detail.html:21
 msgid "Take again now"
 msgstr "گرفتن دوباره"
 
-#: templates/django_prometric/snapshot_detail.html:24
+#: templates/django_prometric/snapshot_detail.html:28
 msgid "admin excluded"
 msgstr "بدون ادمین"
 
-#: templates/django_prometric/snapshot_detail.html:31
+#: templates/django_prometric/snapshot_detail.html:35
 msgid ""
 "The route filters changed between the runs of this series, so route-level "
 "numbers may not be directly comparable."
@@ -390,48 +1455,96 @@ msgstr ""
 "فیلترهای مسیر بین اجراهای این سری تغییر کرده‌اند؛ بنابراین اعداد سطح مسیر "
 "ممکن است مستقیماً قابل مقایسه نباشند."
 
-#: templates/django_prometric/snapshot_detail.html:38
-msgid "Comparison"
-msgstr "مقایسه"
-
-#: templates/django_prometric/snapshot_detail.html:44
-msgid "Metric"
-msgstr "سنجه"
-
-#: templates/django_prometric/snapshot_detail.html:51
-msgid "Change"
-msgstr "تغییر"
+#: templates/django_prometric/snapshot_detail.html:45
+#, python-format
+msgid ""
+"The %(slug)s window was shortened to this source's maximum reach when the "
+"snapshot was taken."
+msgstr ""
+"پنجره‌ی %(slug)s هنگام گرفتن اسنپ‌شات به حداکثر بُرد این منبع کوتاه شد."
 
 #: templates/django_prometric/snapshots.html:4
 #: templates/django_prometric/snapshots.html:5
 msgid "Snapshots"
 msgstr "اسنپ‌شات‌ها"
 
+#: templates/django_prometric/snapshots.html:10
+msgid "Take a snapshot"
+msgstr "گرفتن اسنپ‌شات"
+
+#: templates/django_prometric/snapshots.html:21
+#, python-format
+msgid "up to %(days)s days back"
+msgstr "تا %(days)s روز به عقب"
+
 #: templates/django_prometric/snapshots.html:27
+#, python-format
+msgid ""
+"The selected range is longer than %(name)s can serve — its window would be "
+"shortened to the last %(days)s days."
+msgstr ""
+"بازه‌ی انتخابی طولانی‌تر از حدی است که %(name)s پاسخ می‌دهد — پنجره‌ی آن به "
+"%(days)s روز آخر کوتاه می‌شود."
+
+#: templates/django_prometric/snapshots.html:31
+msgid "That's fine, shorten it"
+msgstr "اشکالی ندارد، کوتاهش کن"
+
+#: templates/django_prometric/snapshots.html:40
+msgid "Save snapshot"
+msgstr "ذخیره‌ی اسنپ‌شات"
+
+#: templates/django_prometric/snapshots.html:47
+#, python-format
+msgid ""
+"No data source is configured yet — <a href=\"%(providers_url)s\">set one "
+"up</a> to take snapshots."
+msgstr ""
+"هنوز هیچ منبع داده‌ای پیکربندی نشده — برای گرفتن اسنپ‌شات <a "
+"href=\"%(providers_url)s\">یکی راه‌اندازی کنید</a>."
+
+#: templates/django_prometric/snapshots.html:57
+msgid "Pick for comparison"
+msgstr "انتخاب برای مقایسه"
+
+#: templates/django_prometric/snapshots.html:58
 msgid "Taken"
 msgstr "زمان ثبت"
 
-#: templates/django_prometric/snapshots.html:29
-msgid "Source"
-msgstr "منبع"
+#: templates/django_prometric/snapshots.html:59
+msgid "Window"
+msgstr "پنجره‌ی زمانی"
 
-#: templates/django_prometric/snapshots.html:30
+#: templates/django_prometric/snapshots.html:60
+msgid "Sources"
+msgstr "منابع"
+
+#: templates/django_prometric/snapshots.html:61
 msgid "Series"
 msgstr "سری"
 
-#: templates/django_prometric/snapshots.html:47
+#: templates/django_prometric/snapshots.html:70
+#, python-format
+msgid "Pick snapshot #%(pk)s for comparison"
+msgstr "انتخاب اسنپ‌شات #%(pk)s برای مقایسه"
+
+#: templates/django_prometric/snapshots.html:86
 msgid "Take again"
 msgstr "گرفتن دوباره"
 
-#: templates/django_prometric/snapshots.html:50
+#: templates/django_prometric/snapshots.html:89
 msgid "Delete this snapshot and its retakes?"
 msgstr "این اسنپ‌شات و نسخه‌های بعدی‌اش حذف شود؟"
 
-#: templates/django_prometric/snapshots.html:52
+#: templates/django_prometric/snapshots.html:91
 msgid "Delete"
 msgstr "حذف"
 
-#: templates/django_prometric/snapshots.html:62
+#: templates/django_prometric/snapshots.html:103
+msgid "Compare"
+msgstr "مقایسه"
+
+#: templates/django_prometric/snapshots.html:107
 msgid ""
 "No snapshots yet. Save one to freeze today's numbers, then take it again "
 "later to compare."
@@ -439,7 +1552,26 @@ msgstr ""
 "هنوز اسنپ‌شاتی نیست. یکی ذخیره کنید تا اعداد امروز ثبت شود؛ بعداً دوباره "
 "بگیرید و مقایسه کنید."
 
-#: views.py:186
+#: views.py:263
 #, python-format
-msgid "Could not take the snapshot: %(reason)s"
-msgstr "گرفتن اسنپ‌شات ممکن نشد: %(reason)s"
+msgid ""
+"%(count)s path (%(requests)s requests) was served but doesn't match any "
+"route above."
+msgid_plural ""
+"%(count)s paths (%(requests)s requests) were served but don't match any "
+"route above."
+msgstr[0] ""
+"%(count)s مسیر (%(requests)s درخواست) پاسخ داده شد اما با هیچ‌یک از مسیرهای "
+"بالا مطابقت ندارد."
+msgstr[1] ""
+"%(count)s مسیر (%(requests)s درخواست) پاسخ داده شدند اما با هیچ‌یک از "
+"مسیرهای بالا مطابقت ندارند."
+
+#: views.py:372
+msgid "Pick at least one data source for the snapshot."
+msgstr "دست‌کم یک منبع داده برای اسنپ‌شات انتخاب کنید."
+
+#: views.py:376
+#, python-format
+msgid "Could not include %(report)s"
+msgstr "افزودن %(report)s ممکن نشد"

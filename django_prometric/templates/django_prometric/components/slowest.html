@@ -1,0 +1,41 @@
+{% extends "django_prometric/components/card.html" %}
+{% load i18n prometric_extras %}
+
+{% block body %}
+  {% if rows %}
+    <div class="pm-table-wrap">
+      <table class="pm-table">
+        <thead>
+          <tr>
+            <th>{% translate "Route" %}</th>
+            <th class="pm-cell-num">{% translate "Requests" %}</th>
+            <th class="pm-cell-num">p50</th>
+            <th class="pm-cell-num">p95</th>
+            <th class="pm-cell-num">p99</th>
+            <th class="pm-cell-num">{% translate "Failure rate" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for perf, route in rows %}
+            <tr>
+              <td>
+                {% if route %}
+                  <a class="pm-route" href="{% url 'django_prometric:route-detail' route.key %}?{{ component.period.as_query }}">{{ route.display|route_html }}</a>
+                {% else %}
+                  <span class="pm-route">{{ perf.transaction }}</span>
+                {% endif %}
+              </td>
+              <td class="pm-cell-num">{{ perf.requests|num }}</td>
+              <td class="pm-cell-num">{{ perf.p50_ms|ms }}</td>
+              <td class="pm-cell-num">{{ perf.p95_ms|ms }}</td>
+              <td class="pm-cell-num">{{ perf.p99_ms|ms }}</td>
+              <td class="pm-cell-num">{{ perf.failure_rate|pct }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="pm-empty"><p>{% translate "No data in this period." %}</p></div>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends "django_prometric/components/card.html" %}
+{% load i18n prometric_extras %}
+
+{% block body %}
+  {% if stats %}
+    <div class="pm-stats">
+      <div class="pm-stat">
+        <div class="pm-stat__label">{% translate "Database size" %}</div>
+        <div class="pm-num">{{ stats.size_bytes|size }}</div>
+      </div>
+      <div class="pm-stat">
+        <div class="pm-stat__label">{% translate "Tables" %}</div>
+        <div class="pm-num">{{ stats.table_count|num }}</div>
+        <div class="pm-stat__sub">{% blocktranslate with rows=stats.row_estimate|num %}~{{ rows }} live rows{% endblocktranslate %}</div>
+      </div>
+      <div class="pm-stat">
+        <div class="pm-stat__label">{% translate "Indexes" %}</div>
+        <div class="pm-num">{{ stats.index_count|num }}</div>
+      </div>
+      <div class="pm-stat">
+        <div class="pm-stat__label">{% translate "Connections" %}</div>
+        <div class="pm-num">{{ stats.used_connections|num }}{% if stats.max_connections %}<span class="pm-num__unit"> / {{ stats.max_connections|num }}</span>{% endif %}</div>
+      </div>
+      {% if stats.cache_hit_ratio is not None %}
+        <div class="pm-stat">
+          <div class="pm-stat__label">{% translate "Cache hit ratio" %}</div>
+          <div class="pm-num">{{ stats.cache_hit_ratio.value|pct }}</div>
+          <div class="pm-stat__sub">{% include "django_prometric/components/_cumulative.html" with since=stats.cache_hit_ratio.since %}</div>
+        </div>
+      {% endif %}
+      {% if stats.commits is not None %}
+        <div class="pm-stat">
+          <div class="pm-stat__label">{% translate "Commits" %}</div>
+          <div class="pm-num">{{ stats.commits.value|num }}</div>
+          <div class="pm-stat__sub">{% blocktranslate with rolled=stats.rollbacks.value|num %}{{ rolled }} rolled back{% endblocktranslate %} {% include "django_prometric/components/_cumulative.html" with since=stats.commits.since %}</div>
+        </div>
+      {% endif %}
+      {% if stats.deadlocks is not None %}
+        <div class="pm-stat">
+          <div class="pm-stat__label">{% translate "Deadlocks" %}</div>
+          <div class="pm-num">{{ stats.deadlocks.value|num }}</div>
+          <div class="pm-stat__sub">{% include "django_prometric/components/_cumulative.html" with since=stats.deadlocks.since %}</div>
+        </div>
+      {% endif %}
+      {% if stats.temp_bytes is not None %}
+        <div class="pm-stat">
+          <div class="pm-stat__label">{% translate "Temp files" %}</div>
+          <div class="pm-num">{{ stats.temp_bytes.value|size }}</div>
+          <div class="pm-stat__sub">{% include "django_prometric/components/_cumulative.html" with since=stats.temp_bytes.since %}</div>
+        </div>
+      {% endif %}
+    </div>
+    <p class="pm-card__hint">{% translate "Sizes and counts are current; badged figures are lifetime counters since the last statistics reset." %}</p>
+  {% else %}
+    <div class="pm-empty"><p>{% translate "No database statistics are available." %}</p></div>
+  {% endif %}
+{% endblock %}

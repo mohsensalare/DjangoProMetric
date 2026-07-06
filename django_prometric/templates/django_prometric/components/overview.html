@@ -6,32 +6,57 @@
     <div class="pm-stat">
       <div class="pm-stat__label">{% translate "Requests" %}</div>
       <div class="pm-num">{{ stats.requests|num }}</div>
+      {% include "django_prometric/components/_stat_delta.html" with change=deltas.requests %}
     </div>
-    <div class="pm-stat">
-      <div class="pm-stat__label">{% translate "Unique visitors" %}</div>
-      <div class="pm-num">{{ stats.unique_visitors|num }}</div>
-    </div>
-    <div class="pm-stat">
-      <div class="pm-stat__label">{% translate "Page views" %}</div>
-      <div class="pm-num">{{ stats.page_views|num }}</div>
-    </div>
-    <div class="pm-stat">
-      <div class="pm-stat__label">{% translate "Bandwidth" %}</div>
-      <div class="pm-num">{{ stats.bandwidth_bytes|size }}</div>
-    </div>
-    <div class="pm-stat">
-      <div class="pm-stat__label">{% translate "Cache ratio" %}</div>
-      <div class="pm-num">{{ stats.cache_ratio|pct }}</div>
-      <div class="pm-stat__sub">{% blocktranslate with cached=stats.cached_requests|num %}{{ cached }} cached{% endblocktranslate %}</div>
-    </div>
-    <div class="pm-stat">
-      <div class="pm-stat__label">{% translate "Errors" %}</div>
-      <div class="pm-num">{{ stats.errors|num }}</div>
-      <div class="pm-stat__sub">{{ stats.error_ratio|pct }}</div>
-    </div>
-    <div class="pm-stat">
-      <div class="pm-stat__label">{% translate "Threats" %}</div>
-      <div class="pm-num">{{ stats.threats|num }}</div>
-    </div>
+    {% if stats.unique_visitors is not None %}
+      <div class="pm-stat">
+        <div class="pm-stat__label">{% translate "Unique visitors" %}</div>
+        <div class="pm-num">{{ stats.unique_visitors|num }}</div>
+        {% include "django_prometric/components/_stat_delta.html" with change=deltas.unique_visitors %}
+      </div>
+    {% endif %}
+    {% if stats.page_views is not None %}
+      <div class="pm-stat">
+        <div class="pm-stat__label">{% translate "Page views" %}</div>
+        <div class="pm-num">{{ stats.page_views|num }}</div>
+        {% include "django_prometric/components/_stat_delta.html" with change=deltas.page_views %}
+      </div>
+    {% endif %}
+    {% if stats.bandwidth_bytes is not None %}
+      <div class="pm-stat">
+        <div class="pm-stat__label">{% translate "Bandwidth" %}</div>
+        <div class="pm-num">{{ stats.bandwidth_bytes|size }}</div>
+        {% include "django_prometric/components/_stat_delta.html" with change=deltas.bandwidth_bytes %}
+      </div>
+    {% endif %}
+    {% if stats.cached_requests is not None %}
+      <div class="pm-stat">
+        <div class="pm-stat__label">{% translate "Cache ratio" %}</div>
+        <div class="pm-num">{{ stats.cache_ratio|pct }}</div>
+        <div class="pm-stat__sub">{% blocktranslate with cached=stats.cached_requests|num %}{{ cached }} cached{% endblocktranslate %}</div>
+      </div>
+    {% endif %}
+    {% if stats.errors is not None %}
+      <div class="pm-stat">
+        <div class="pm-stat__label">{% translate "Errors" %}</div>
+        <div class="pm-num">{{ stats.errors|num }}</div>
+        <div class="pm-stat__sub">
+          {{ stats.error_ratio|pct }}
+          {% if deltas.errors %}
+            <span class="pm-delta-pill{% if deltas.errors.cls %} pm-delta--{{ deltas.errors.cls }}{% endif %}">{{ deltas.errors.delta|delta }}</span>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+    {% if stats.threats is not None %}
+      <div class="pm-stat">
+        <div class="pm-stat__label">{% translate "Threats" %}</div>
+        <div class="pm-num">{{ stats.threats|num }}</div>
+        {% include "django_prometric/components/_stat_delta.html" with change=deltas.threats %}
+      </div>
+    {% endif %}
   </div>
+  {% if deltas %}
+    <p class="pm-card__hint">{% translate "Coloured changes compare against the window right before this one." %}</p>
+  {% endif %}
 {% endblock %}

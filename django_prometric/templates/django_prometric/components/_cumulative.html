@@ -1,0 +1,9 @@
+{% load i18n %}
+{% comment %}
+  Marks a value as a lifetime counter accumulated since the last statistics
+  reset, not scoped to the selected period. Generic — any provider can reuse it.
+  Context: since = the reset datetime (or None to render nothing).
+{% endcomment %}
+{% if since %}
+  <span class="pm-cumulative-badge" title="{% translate 'Accumulated since the last statistics reset — not the selected period.' %}">{% blocktranslate with when=since|date:'j M Y' %}since {{ when }}{% endblocktranslate %}</span>
+{% endif %}

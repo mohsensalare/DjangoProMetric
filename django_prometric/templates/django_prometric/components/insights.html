@@ -1,0 +1,24 @@
+{% extends "django_prometric/components/card.html" %}
+{% load i18n %}
+
+{% block body %}
+  {% if insights %}
+    <div class="pm-insights">
+      {% for insight in insights %}
+        <div class="pm-insight pm-insight--{{ insight.severity }}">
+          <span class="pm-insight__dot" aria-hidden="true"></span>
+          <div class="pm-insight__body">
+            <div class="pm-insight__title">
+              {{ insight.title }}
+              <span class="pm-badge">{{ insight.source }}</span>
+            </div>
+            {% if insight.detail %}<p class="pm-insight__detail">{{ insight.detail }}</p>{% endif %}
+            {% if insight.action %}<p class="pm-insight__action">{{ insight.action }}</p>{% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="pm-empty"><p>{% translate "Nothing stands out in this period." %}</p></div>
+  {% endif %}
+{% endblock %}

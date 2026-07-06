@@ -18,6 +18,7 @@ import json
 import os
 import urllib.error
 import urllib.request
+from collections import Counter
 
 from django.core.cache import caches
 from django.utils.translation import gettext as _
@@ -27,6 +28,7 @@ from . import base
 from .base import (
     AnalyticsProvider,
     BreakdownItem,
+    Insight,
     OverviewStats,
     PathStat,
     PerformanceStats,
@@ -57,6 +59,8 @@ _BREAKDOWN_DIMENSIONS = {
 class CloudflareProvider(AnalyticsProvider):
     slug = "cloudflare"
     verbose_name = "Cloudflare"
+    kind = _("Edge traffic")
+    route_template = "django_prometric/route/traffic.html"
 
     def __init__(self):
         super().__init__()
@@ -69,6 +73,10 @@ class CloudflareProvider(AnalyticsProvider):
         self.account_id = os.environ.get(cf["ACCOUNT_ID_ENV"], "").strip()
         self.token_env = cf["API_TOKEN_ENV"]
         self.zone_env = cf["ZONE_ID_ENV"]
+        # A zone can front many hostnames; these narrow the numbers to the
+        # ones this Django project actually serves.
+        self.hosts = [h.strip() for h in cf["HOSTS"] if h.strip()]
+        self.exclude_hosts = [h.strip() for h in cf["EXCLUDE_HOSTS"] if h.strip()]
         self.cache = caches[config["CACHE_ALIAS"]]
         self.cache_ttl = config["CACHE_TTL"]
 
@@ -85,8 +93,14 @@ class CloudflareProvider(AnalyticsProvider):
         ) % {"token": self.token_env, "zone": self.zone_env}
 
     def description(self) -> str:
-        name = self._zone_name()
-        return name or f"zone {self.zone_id[:10]}…"
+        name = self._zone_name() or f"zone {self.zone_id[:10]}…"
+        if self.hosts:
+            name += f" ({', '.join(self.hosts)})"
+        return name
+
+    @property
+    def host_filtered(self) -> bool:
+        return bool(self.hosts or self.exclude_hosts)
 
     def capabilities(self) -> set:
         caps = {
@@ -101,6 +115,12 @@ class CloudflareProvider(AnalyticsProvider):
             base.UNIQUES,
             base.THREATS,
             base.VISITS,
+            base.SECURITY,
+            base.BOTS,
+            base.SEO,
+            base.NETWORK,
+            base.AUDIENCE,
+            base.INSIGHTS,
         }
         if self.cache.get(_PERF_FLAG_KEY) != "no":
             caps.add(base.PERFORMANCE)
@@ -117,25 +137,30 @@ class CloudflareProvider(AnalyticsProvider):
                 "Content-Type": "application/json",
             },
         )
-        try:
-            with urllib.request.urlopen(request, timeout=self.timeout) as response:
-                return json.loads(response.read().decode())
-        except urllib.error.HTTPError as exc:
-            if exc.code in (401, 403):
+        # Flaky links drop TLS connections mid-handshake now and then; one
+        # immediate retry absorbs that without hiding real outages.
+        for attempt in (1, 2):
+            try:
+                with urllib.request.urlopen(request, timeout=self.timeout) as response:
+                    return json.loads(response.read().decode())
+            except urllib.error.HTTPError as exc:
+                if exc.code in (401, 403):
+                    raise ProviderError(
+                        _("Cloudflare rejected the API token. Check its permissions."),
+                        kind="auth",
+                    ) from exc
                 raise ProviderError(
-                    _("Cloudflare rejected the API token. Check its permissions."),
-                    kind="auth",
+                    _("Cloudflare API returned HTTP %(code)s.") % {"code": exc.code},
+                    kind="network",
                 ) from exc
-            raise ProviderError(
-                _("Cloudflare API returned HTTP %(code)s.") % {"code": exc.code},
-                kind="network",
-            ) from exc
-        except (urllib.error.URLError, TimeoutError, OSError) as exc:
-            raise ProviderError(
-                _("Could not reach the Cloudflare API: %(reason)s")
-                % {"reason": getattr(exc, "reason", exc)},
-                kind="network",
-            ) from exc
+            except (urllib.error.URLError, TimeoutError, OSError) as exc:
+                if attempt == 1:
+                    continue
+                raise ProviderError(
+                    _("Could not reach the Cloudflare API: %(reason)s")
+                    % {"reason": getattr(exc, "reason", exc)},
+                    kind="network",
+                ) from exc
 
     def _graphql(self, query: str) -> dict:
         """Run a GraphQL query and return the first zone object."""
@@ -198,10 +223,11 @@ class CloudflareProvider(AnalyticsProvider):
         if period.days > 1:  # only worth a notice when data is actually cut
             self.add_notice(
                 _(
-                    "Your Cloudflare plan limits path-level analytics to a "
-                    "24-hour window, so per-route numbers cover the last 24 "
-                    "hours only."
-                )
+                    "Showing the last 24 hours instead of the selected range "
+                    "— your Cloudflare plan limits path-level analytics to a "
+                    "24-hour window."
+                ),
+                level=base.NOTICE_WARN,
             )
         return Period(
             key=period.key,
@@ -220,6 +246,37 @@ class CloudflareProvider(AnalyticsProvider):
                 self.cache.set(_CLAMP_FLAG_KEY, "yes", 86400)
                 return self._cached_graphql(build_query(self._clamped(period)))
             raise
+
+    def _where(self, effective: Period, any_of: tuple = ()) -> str:
+        """The adaptive-dataset filter object: time window, host rules, and
+        optionally a group of alternatives (``any_of``) that is OR-combined.
+
+        OR groups (paths, hosts) each become one member of an AND list, so
+        several of them coexist in a single filter object.
+        """
+        parts = [
+            f'datetime_gt: "{effective.start.strftime(_DATETIME)}"',
+            f'datetime_leq: "{effective.end.strftime(_DATETIME)}"',
+        ]
+        groups = []
+        if any_of:
+            groups.append("{OR: [" + ", ".join(any_of) + "]}")
+        if self.hosts:
+            hosts = ", ".join(f'{{clientRequestHTTPHost: "{host}"}}' for host in self.hosts)
+            groups.append(f"{{OR: [{hosts}]}}")
+        groups.extend(f'{{clientRequestHTTPHost_neq: "{host}"}}' for host in self.exclude_hosts)
+        if groups:
+            parts.append("AND: [" + ", ".join(groups) + "]")
+        return "{" + ", ".join(parts) + "}"
+
+    def _path_conditions(self, route) -> tuple:
+        """One filter object per concrete path pattern the route serves."""
+        return tuple(
+            f'{{clientRequestPath_like: "{pattern}"}}'
+            if "%" in pattern
+            else f'{{clientRequestPath: "{pattern}"}}'
+            for pattern in route.path_patterns
+        )
 
     # -- daily dataset (zone-wide, works on every plan) ----------------------
     def _daily_groups(self, period: Period) -> list:
@@ -244,6 +301,10 @@ class CloudflareProvider(AnalyticsProvider):
 
     # -- provider API --------------------------------------------------------
     def get_overview(self, period: Period) -> OverviewStats:
+        if self.host_filtered:
+            # The daily dataset is zone-wide; honour the host rules through
+            # the adaptive dataset instead of reporting other hosts' numbers.
+            return self._adaptive_overview(period)
         stats = OverviewStats(
             bandwidth_bytes=0,
             cached_requests=0,
@@ -265,8 +326,43 @@ class CloudflareProvider(AnalyticsProvider):
                     stats.errors += item.get("requests", 0)
         return stats
 
+    _CACHED_STATUSES = {"hit", "stale", "updating", "revalidated"}
+
+    def _adaptive_overview(self, period: Period) -> OverviewStats:
+        def build(effective: Period) -> str:
+            where = self._where(effective)
+            return f"""{{ viewer {{ zones(filter: {{zoneTag: "{self.zone_id}"}}) {{
+                total: httpRequestsAdaptiveGroups(limit: 1, filter: {where}) {{
+                    count sum {{ edgeResponseBytes visits }}
+                }}
+                statuses: httpRequestsAdaptiveGroups(limit: 25, filter: {where}, orderBy: [count_DESC]) {{
+                    count dimensions {{ edgeResponseStatus }}
+                }}
+                cache: httpRequestsAdaptiveGroups(limit: 10, filter: {where}, orderBy: [count_DESC]) {{
+                    count dimensions {{ cacheStatus }}
+                }}
+            }} }} }}"""
+
+        zone = self._adaptive_query(build, period)
+        total_groups = zone.get("total") or []
+        total = total_groups[0] if total_groups else {}
+        stats = OverviewStats(
+            requests=total.get("count", 0),
+            bandwidth_bytes=(total.get("sum") or {}).get("edgeResponseBytes", 0),
+            page_views=(total.get("sum") or {}).get("visits", 0),
+            cached_requests=0,
+            errors=0,
+        )
+        for group in zone.get("statuses") or []:
+            if (group.get("dimensions") or {}).get("edgeResponseStatus", 0) >= 400:
+                stats.errors += group.get("count", 0)
+        for group in zone.get("cache") or []:
+            if (group.get("dimensions") or {}).get("cacheStatus", "") in self._CACHED_STATUSES:
+                stats.cached_requests += group.get("count", 0)
+        return stats
+
     def get_timeseries(self, period: Period) -> list[TimeseriesPoint]:
-        if period.days > 2:
+        if period.days > 2 and not self.host_filtered:
             return [
                 TimeseriesPoint(
                     label=(group.get("dimensions") or {}).get("date", ""),
@@ -276,11 +372,10 @@ class CloudflareProvider(AnalyticsProvider):
             ]
 
         def build(effective: Period) -> str:
-            since = effective.start.strftime(_DATETIME)
             return f"""{{ viewer {{ zones(filter: {{zoneTag: "{self.zone_id}"}}) {{
                 series: httpRequestsAdaptiveGroups(
                     limit: 60,
-                    filter: {{datetime_gt: "{since}"}},
+                    filter: {self._where(effective)},
                     orderBy: [datetimeHour_ASC]
                 ) {{ count dimensions {{ datetimeHour }} }}
             }} }} }}"""
@@ -296,11 +391,10 @@ class CloudflareProvider(AnalyticsProvider):
 
     def get_path_stats(self, period: Period, limit: int = 1500) -> list[PathStat]:
         def build(effective: Period) -> str:
-            since = effective.start.strftime(_DATETIME)
             return f"""{{ viewer {{ zones(filter: {{zoneTag: "{self.zone_id}"}}) {{
                 paths: httpRequestsAdaptiveGroups(
                     limit: {int(limit)},
-                    filter: {{datetime_gt: "{since}"}},
+                    filter: {self._where(effective)},
                     orderBy: [count_DESC]
                 ) {{
                     count
@@ -324,16 +418,15 @@ class CloudflareProvider(AnalyticsProvider):
         return stats
 
     def get_breakdown(self, dimension: str, period: Period, limit: int = 12) -> list[BreakdownItem]:
-        if dimension in (base.DIM_COUNTRY, base.DIM_STATUS):
+        if dimension in (base.DIM_COUNTRY, base.DIM_STATUS) and not self.host_filtered:
             return self._daily_breakdown(dimension, period, limit)
         field = _BREAKDOWN_DIMENSIONS[dimension]
 
         def build(effective: Period) -> str:
-            since = effective.start.strftime(_DATETIME)
             return f"""{{ viewer {{ zones(filter: {{zoneTag: "{self.zone_id}"}}) {{
                 breakdown: httpRequestsAdaptiveGroups(
                     limit: {int(limit)},
-                    filter: {{datetime_gt: "{since}"}},
+                    filter: {self._where(effective)},
                     orderBy: [count_DESC]
                 ) {{ count dimensions {{ {field} }} }}
             }} }} }}"""
@@ -364,14 +457,10 @@ class CloudflareProvider(AnalyticsProvider):
         return with_shares(items[:limit])
 
     def get_route_metrics(self, route, period: Period) -> RouteMetrics:
-        if route.is_dynamic:
-            path_filter = f'clientRequestPath_like: "{route.wildcard}"'
-        else:
-            path_filter = f'clientRequestPath: "{route.display}"'
+        conditions = self._path_conditions(route)
 
         def build(effective: Period) -> str:
-            since = effective.start.strftime(_DATETIME)
-            base_filter = f'{{datetime_gt: "{since}", {path_filter}}}'
+            base_filter = self._where(effective, any_of=conditions)
             return f"""{{ viewer {{ zones(filter: {{zoneTag: "{self.zone_id}"}}) {{
                 total: httpRequestsAdaptiveGroups(limit: 1, filter: {base_filter}) {{
                     count sum {{ edgeResponseBytes visits }}
@@ -442,20 +531,30 @@ class CloudflareProvider(AnalyticsProvider):
                     tzinfo=dt.timezone.utc
                 )
 
-        metrics.performance = self._performance(path_filter, period)
+        metrics.performance = self._performance(period, conditions)
         return metrics
 
-    def _performance(self, path_filter: str, period: Period) -> PerformanceStats | None:
+    def get_route_context(self, route, period: Period) -> dict:
+        metrics = self.get_route_metrics(route, period)
+        return {
+            "metrics": metrics,
+            # JSON-serialisable copy of the timeseries for the chart canvas.
+            "chart": {
+                "labels": [point.label for point in metrics.timeseries],
+                "values": [point.requests for point in metrics.timeseries],
+            },
+        }
+
+    def _performance(self, period: Period, conditions: tuple = ()) -> PerformanceStats | None:
         """TTFB quantiles; detects plan gating once and remembers it."""
         if self.cache.get(_PERF_FLAG_KEY) == "no":
             return None
 
         def build(effective: Period) -> str:
-            since = effective.start.strftime(_DATETIME)
             return f"""{{ viewer {{ zones(filter: {{zoneTag: "{self.zone_id}"}}) {{
                 perf: httpRequestsAdaptiveGroups(
                     limit: 1,
-                    filter: {{datetime_gt: "{since}", {path_filter}}}
+                    filter: {self._where(effective, any_of=conditions)}
                 ) {{
                     quantiles {{
                         edgeTimeToFirstByteMsP50
@@ -485,7 +584,361 @@ class CloudflareProvider(AnalyticsProvider):
 
     def get_performance(self, period: Period) -> PerformanceStats | None:
         """Zone-wide TTFB quantiles for the dashboard performance card."""
-        return self._performance('clientRequestPath_like: "%"', period)
+        return self._performance(period)
+
+    # What the firewall dataset's raw labels mean, for humans.
+    _ACTION_LABELS = {
+        "block": _("Blocked"),
+        "challenge": _("Challenged"),
+        "managed_challenge": _("Managed challenge"),
+        "jschallenge": _("JS challenge"),
+        "log": _("Logged"),
+        "skip": _("Skipped"),
+    }
+    _SOURCE_LABELS = {
+        "waf": "WAF",
+        "firewallmanaged": _("Managed rules"),
+        "firewallcustom": _("Custom rules"),
+        "firewallrules": _("Firewall rules"),
+        "ratelimit": _("Rate limiting"),
+        "securitylevel": _("Security level"),
+        "botfight": _("Bot Fight Mode"),
+        "l7ddos": _("DDoS protection"),
+        "ip": _("IP rules"),
+        "country": _("Country rules"),
+    }
+
+    # Raw firewall events fetched per security query. The grouped dataset
+    # (firewallEventsAdaptiveGroups) is closed below the Business plan, so
+    # the newest raw events are aggregated here instead.
+    _SECURITY_SAMPLE = 3000
+
+    def get_security(self, period: Period) -> dict:
+        """Firewall mitigations: how much was blocked/challenged, by what,
+        from where, and which paths were attacked."""
+
+        def build(effective: Period) -> str:
+            return f"""{{ viewer {{ zones(filter: {{zoneTag: "{self.zone_id}"}}) {{
+                events: firewallEventsAdaptive(limit: {self._SECURITY_SAMPLE},
+                        filter: {self._where(effective)}, orderBy: [datetime_DESC]) {{
+                    action source clientCountryName clientRequestPath
+                }}
+            }} }} }}"""
+
+        events = self._adaptive_query(build, period).get("events") or []
+
+        def tally(field: str, top: int, labels: dict | None = None) -> list[BreakdownItem]:
+            counts = Counter(str(event.get(field) or "") for event in events)
+            found = [
+                BreakdownItem(label=str((labels or {}).get(raw.lower(), raw)), value=count)
+                for raw, count in counts.most_common(top)
+            ]
+            return with_shares(found)
+
+        return {
+            "total": len(events),
+            "actions": tally("action", 8, self._ACTION_LABELS),
+            "sources": tally("source", 8, self._SOURCE_LABELS),
+            "countries": tally("clientCountryName", 6),
+            "paths": tally("clientRequestPath", 6),
+        }
+
+    _SEARCH_CRAWLER = "Search Engine Crawler"
+
+    def get_bots(self, period: Period) -> dict:
+        """Verified-bot share of traffic, split by crawler category.
+
+        Cloudflare only labels bots it has verified (search engines, AI
+        crawlers, monitoring services, …); everything else — people and
+        unverified automation — lands in ``humans``.
+        """
+
+        def build(effective: Period) -> str:
+            return f"""{{ viewer {{ zones(filter: {{zoneTag: "{self.zone_id}"}}) {{
+                categories: httpRequestsAdaptiveGroups(limit: 15,
+                        filter: {self._where(effective)}, orderBy: [count_DESC]) {{
+                    count dimensions {{ verifiedBotCategory }}
+                }}
+            }} }} }}"""
+
+        zone = self._adaptive_query(build, period)
+        categories, humans = [], 0
+        for group in zone.get("categories") or []:
+            label = (group.get("dimensions") or {}).get("verifiedBotCategory") or ""
+            count = group.get("count", 0)
+            if label:
+                categories.append(BreakdownItem(label=label, value=count))
+            else:
+                humans += count
+        bots = sum(item.value for item in categories)
+        return {
+            "total": humans + bots,
+            "humans": humans,
+            "bots": bots,
+            "categories": with_shares(categories),
+        }
+
+    def get_seo(self, period: Period) -> dict:
+        """What search engines crawl: which engines come by, which pages
+        they fetch, and how often."""
+        crawler = f'{{verifiedBotCategory: "{self._SEARCH_CRAWLER}"}}'
+
+        def build(effective: Period) -> str:
+            where = self._where(effective, any_of=(crawler,))
+            return f"""{{ viewer {{ zones(filter: {{zoneTag: "{self.zone_id}"}}) {{
+                total: httpRequestsAdaptiveGroups(limit: 1, filter: {where}) {{ count }}
+                engines: httpRequestsAdaptiveGroups(limit: 8, filter: {where},
+                        orderBy: [count_DESC]) {{
+                    count dimensions {{ userAgentBrowser }}
+                }}
+                paths: httpRequestsAdaptiveGroups(limit: 8, filter: {where},
+                        orderBy: [count_DESC]) {{
+                    count dimensions {{ clientRequestPath }}
+                }}
+            }} }} }}"""
+
+        zone = self._adaptive_query(build, period)
+        total_groups = zone.get("total") or []
+        return {
+            "total": total_groups[0].get("count", 0) if total_groups else 0,
+            "engines": self._grouped(zone, "engines", "userAgentBrowser"),
+            "paths": self._grouped(zone, "paths", "clientRequestPath"),
+        }
+
+    def get_network(self, period: Period) -> dict:
+        """How clients connect: HTTP versions and TLS versions."""
+
+        def build(effective: Period) -> str:
+            where = self._where(effective)
+            return f"""{{ viewer {{ zones(filter: {{zoneTag: "{self.zone_id}"}}) {{
+                http: httpRequestsAdaptiveGroups(limit: 8, filter: {where},
+                        orderBy: [count_DESC]) {{
+                    count dimensions {{ clientRequestHTTPProtocol }}
+                }}
+                tls: httpRequestsAdaptiveGroups(limit: 8, filter: {where},
+                        orderBy: [count_DESC]) {{
+                    count dimensions {{ clientSSLProtocol }}
+                }}
+            }} }} }}"""
+
+        zone = self._adaptive_query(build, period)
+        return {
+            "http_versions": self._grouped(zone, "http", "clientRequestHTTPProtocol"),
+            "tls": self._grouped(zone, "tls", "clientSSLProtocol"),
+        }
+
+    def get_audience(self, period: Period) -> dict:
+        """Real users' browsers, operating systems and devices — verified
+        bots are filtered out so this reflects people, not crawlers."""
+        people = '{verifiedBotCategory: ""}'
+
+        def build(effective: Period) -> str:
+            where = self._where(effective, any_of=(people,))
+            return f"""{{ viewer {{ zones(filter: {{zoneTag: "{self.zone_id}"}}) {{
+                browsers: httpRequestsAdaptiveGroups(limit: 8, filter: {where},
+                        orderBy: [count_DESC]) {{
+                    count dimensions {{ userAgentBrowser }}
+                }}
+                os: httpRequestsAdaptiveGroups(limit: 8, filter: {where},
+                        orderBy: [count_DESC]) {{
+                    count dimensions {{ userAgentOS }}
+                }}
+                devices: httpRequestsAdaptiveGroups(limit: 5, filter: {where},
+                        orderBy: [count_DESC]) {{
+                    count dimensions {{ clientDeviceType }}
+                }}
+            }} }} }}"""
+
+        zone = self._adaptive_query(build, period)
+        return {
+            "browsers": self._grouped(zone, "browsers", "userAgentBrowser"),
+            "os": self._grouped(zone, "os", "userAgentOS"),
+            "devices": self._grouped(zone, "devices", "clientDeviceType"),
+        }
+
+    def _grouped(self, zone: dict, alias: str, field: str) -> list[BreakdownItem]:
+        return with_shares(
+            [
+                BreakdownItem(
+                    label=str((group.get("dimensions") or {}).get(field, "")),
+                    value=group.get("count", 0),
+                )
+                for group in zone.get(alias) or []
+            ]
+        )
+
+    # -- insights ------------------------------------------------------------
+    # Thresholds are shares of total requests over the selected period.
+    _CACHE_LOW = 0.20
+    _CACHE_HEALTHY = 0.50
+    _5XX_WARN = 0.005
+    _5XX_BAD = 0.02
+    _404_WARN = 0.05
+    _AI_CRAWLER_WARN = 0.10
+    _HTTP1_WARN = 0.50
+    _MITIGATION_WARN = 500  # absolute mitigated requests
+
+    def get_insights(self, period: Period) -> list[Insight]:
+        insights = []
+        rules = (
+            self._status_insights,
+            self._cache_insights,
+            self._security_insights,
+            self._bot_insights,
+            self._network_insights,
+        )
+        for rule in rules:
+            try:
+                insights.extend(rule(period))
+            except ProviderError:
+                continue  # one gated dataset never silences the other findings
+        return insights
+
+    def _cache_insights(self, period: Period) -> list[Insight]:
+        stats = self.get_overview(period)
+        ratio = stats.cache_ratio
+        if ratio is None or not stats.requests:
+            return []
+        if ratio < self._CACHE_LOW:
+            return [
+                Insight(
+                    severity=base.INSIGHT_WARN,
+                    title=_("The edge cache is barely used"),
+                    detail=_("Only %(share)d%% of %(requests)s requests were served from cache.")
+                    % {"share": ratio * 100, "requests": f"{stats.requests:,}"},
+                    action=_(
+                        "Send Cache-Control headers on static files and cacheable "
+                        "pages so the CDN can answer them without hitting Django."
+                    ),
+                )
+            ]
+        if ratio >= self._CACHE_HEALTHY:
+            return [
+                Insight(
+                    severity=base.INSIGHT_GOOD,
+                    title=_("The edge cache is pulling its weight"),
+                    detail=_("%(share)d%% of requests never reached your server.")
+                    % {"share": ratio * 100},
+                )
+            ]
+        return []
+
+    def _status_insights(self, period: Period) -> list[Insight]:
+        statuses = self.get_breakdown(base.DIM_STATUS, period, limit=25)
+        total = sum(item.value for item in statuses)
+        if not total:
+            return []
+        errors_5xx = sum(int(i.value) for i in statuses if i.label.startswith("5"))
+        not_found = sum(int(i.value) for i in statuses if i.label == "404")
+        insights = []
+        if errors_5xx / total >= self._5XX_WARN:
+            insights.append(
+                Insight(
+                    severity=base.INSIGHT_BAD
+                    if errors_5xx / total >= self._5XX_BAD
+                    else base.INSIGHT_WARN,
+                    title=_("Requests are failing with server errors"),
+                    detail=_("%(count)s requests (%(share).1f%%) ended in a 5xx status.")
+                    % {"count": f"{errors_5xx:,}", "share": errors_5xx / total * 100},
+                    action=_("Open the application errors list and fix the top offenders."),
+                )
+            )
+        elif errors_5xx == 0:
+            insights.append(
+                Insight(
+                    severity=base.INSIGHT_GOOD,
+                    title=_("No server errors at the edge"),
+                    detail=_("None of the %(requests)s requests returned a 5xx status.")
+                    % {"requests": f"{total:,}"},
+                )
+            )
+        if not_found / total >= self._404_WARN:
+            insights.append(
+                Insight(
+                    severity=base.INSIGHT_WARN,
+                    title=_("A lot of traffic hits dead ends"),
+                    detail=_("%(count)s requests (%(share).1f%%) got a 404.")
+                    % {"count": f"{not_found:,}", "share": not_found / total * 100},
+                    action=_(
+                        "Check the top routes for broken links, and add redirects "
+                        "for pages that moved."
+                    ),
+                )
+            )
+        return insights
+
+    def _security_insights(self, period: Period) -> list[Insight]:
+        security = self.get_security(period)
+        total = security["total"]
+        if not total:
+            return []
+        top_path = security["paths"][0].label if security["paths"] else ""
+        detail = _("%(count)s requests were blocked or challenged in this period.") % {
+            "count": f"{total:,}"
+        }
+        if top_path:
+            detail += " " + _("Most-targeted path: %(path)s.") % {"path": top_path}
+        if total < self._MITIGATION_WARN:
+            return [
+                Insight(
+                    severity=base.INSIGHT_GOOD, title=_("The firewall has your back"), detail=detail
+                )
+            ]
+        return [
+            Insight(
+                severity=base.INSIGHT_WARN,
+                title=_("Heavy firewall activity"),
+                detail=detail,
+                action=_(
+                    "Review the security card; a rate limit or a stricter rule on "
+                    "the targeted paths can cut this noise at the edge."
+                ),
+            )
+        ]
+
+    def _bot_insights(self, period: Period) -> list[Insight]:
+        bots = self.get_bots(period)
+        if not bots["total"]:
+            return []
+        ai_requests = sum(item.value for item in bots["categories"] if item.label == "AI Crawler")
+        share = ai_requests / bots["total"]
+        if share >= self._AI_CRAWLER_WARN:
+            return [
+                Insight(
+                    severity=base.INSIGHT_WARN,
+                    title=_("AI crawlers take a serious slice of your traffic"),
+                    detail=_("AI crawlers made %(count)s requests (%(share).1f%% of all traffic).")
+                    % {"count": f"{ai_requests:,}", "share": share * 100},
+                    action=_(
+                        "Decide whether that's welcome: Cloudflare can block or "
+                        "rate-limit AI crawlers with a single setting."
+                    ),
+                )
+            ]
+        return []
+
+    def _network_insights(self, period: Period) -> list[Insight]:
+        network = self.get_network(period)
+        versions = network["http_versions"]
+        total = sum(item.value for item in versions)
+        if not total:
+            return []
+        http1 = sum(item.value for item in versions if item.label == "HTTP/1.1")
+        if http1 / total >= self._HTTP1_WARN:
+            return [
+                Insight(
+                    severity=base.INSIGHT_WARN,
+                    title=_("Most connections still speak HTTP/1.1"),
+                    detail=_("%(share).0f%% of requests came over HTTP/1.1.")
+                    % {"share": http1 / total * 100},
+                    action=_(
+                        "That usually means bots or very old clients; real "
+                        "browsers negotiate HTTP/2 or 3 on their own. Cross-check "
+                        "with the bots card."
+                    ),
+                )
+            ]
+        return []
 
     def invalidate_cache(self) -> None:
         try:

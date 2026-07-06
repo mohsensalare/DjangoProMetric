@@ -1,0 +1,19 @@
+{% extends "django_prometric/components/card.html" %}
+{% load i18n prometric_extras %}
+
+{% block body %}
+  {% if backend.ops %}
+    <p class="pm-card__hint">{% translate "Total time spent inside the application, by kind of work." %}</p>
+    <div class="pm-bars">
+      {% for item in backend.ops %}
+        <div class="pm-bar">
+          <span class="pm-bar__label">{{ item.label }}</span>
+          <span class="pm-bar__track"><span class="pm-bar__fill" style="--pm-share: {% widthratio item.share 1 100 %}"></span></span>
+          <span class="pm-bar__value">{{ item.value|ms }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="pm-empty"><p>{% translate "No spans were recorded in this period." %}</p></div>
+  {% endif %}
+{% endblock %}

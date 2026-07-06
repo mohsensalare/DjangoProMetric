@@ -1,0 +1,40 @@
+{% load i18n prometric_extras %}
+{% comment %}Sentry's section of the route-detail page.
+Context: provider, route, period, transactions (RoutePerformance list).{% endcomment %}
+{% if transactions %}
+  <div class="pm-card pm-card--table pm-table-wrap">
+    <table class="pm-table">
+      <thead>
+        <tr>
+          <th>{% translate "Transaction" %}</th>
+          <th class="pm-cell-num">{% translate "Requests" %}</th>
+          <th class="pm-cell-num">p50</th>
+          <th class="pm-cell-num">p75</th>
+          <th class="pm-cell-num">p95</th>
+          <th class="pm-cell-num">p99</th>
+          <th class="pm-cell-num">{% translate "Failure rate" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for tx in transactions %}
+          <tr>
+            <td><span class="pm-route">{{ tx.transaction }}</span></td>
+            <td class="pm-cell-num">{{ tx.requests|num }}</td>
+            <td class="pm-cell-num">{{ tx.p50_ms|ms }}</td>
+            <td class="pm-cell-num">{{ tx.p75_ms|ms }}</td>
+            <td class="pm-cell-num">{{ tx.p95_ms|ms }}</td>
+            <td class="pm-cell-num">{{ tx.p99_ms|ms }}</td>
+            <td class="pm-cell-num">{{ tx.failure_rate|pct }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <div class="pm-empty pm-card">
+    <p>{% translate "No Sentry transactions matched this route in the selected period." %}</p>
+    <p class="pm-note">
+      {% translate "Transactions appear once the route receives traffic while the Sentry SDK's tracing is enabled." %}
+    </p>
+  </div>
+{% endif %}

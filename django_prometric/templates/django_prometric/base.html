@@ -6,7 +6,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
   <title>{% block title %}{% translate "Analytics" %}{% endblock %} · ProMetric</title>
+  {# Resolve the theme before first paint so there is no light/dark flash. #}
+  <script>
+    (function () {
+      var theme = null;
+      try { theme = localStorage.getItem("pm-theme"); } catch (e) {}
+      if (theme !== "light" && theme !== "dark") {
+        theme = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.dataset.theme = theme;
+    })();
+  </script>
   <link rel="stylesheet" href="{% static 'django_prometric/prometric.css' %}">
+  {% translate "Couldn't reach the server for this data." as pm_load_failed %}
+  {% translate "Try again" as pm_retry %}
+  <script type="application/json" id="pm-i18n">{"loadFailed": "{{ pm_load_failed|escapejs }}", "retry": "{{ pm_retry|escapejs }}"}</script>
   <script src="{% static 'django_prometric/vendor/chart.umd.js' %}" defer></script>
   <script src="{% static 'django_prometric/prometric.js' %}" defer></script>
 </head>
@@ -24,12 +38,23 @@
       {% with active=request.resolver_match.url_name %}
       <nav class="pm-nav" aria-label="{% translate 'Sections' %}">
         <a href="{% url 'django_prometric:dashboard' %}" {% if active == "dashboard" %}aria-current="page"{% endif %}>/dashboard</a>
+        <a href="{% url 'django_prometric:providers' %}" {% if active == "providers" or active == "provider-detail" %}aria-current="page"{% endif %}>/providers</a>
         <a href="{% url 'django_prometric:routes' %}" {% if active == "routes" or active == "route-detail" %}aria-current="page"{% endif %}>/routes</a>
-        <a href="{% url 'django_prometric:snapshots' %}" {% if active == "snapshots" or active == "snapshot-detail" %}aria-current="page"{% endif %}>/snapshots</a>
+        <a href="{% url 'django_prometric:snapshots' %}" {% if active == "snapshots" or active == "snapshot-detail" or active == "snapshot-compare" %}aria-current="page"{% endif %}>/snapshots</a>
       </nav>
       {% endwith %}
       <div class="pm-topbar__side">
-        {% if provider.is_configured %}{{ provider.verbose_name }}{% if provider.description %} · {{ provider.description }}{% endif %}{% endif %}
+        {% for p in providers %}<a class="pm-source-chip" href="{% url 'django_prometric:provider-detail' p.slug %}">{{ p.verbose_name }}</a>{% endfor %}
+        <button type="button" class="pm-theme-toggle" data-theme-toggle
+                aria-label="{% translate 'Switch between light and dark theme' %}">
+          <svg class="pm-theme-toggle__sun" width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true">
+            <circle cx="7.5" cy="7.5" r="3.1"/>
+            <path d="M7.5 .8v1.6M7.5 12.6v1.6M.8 7.5h1.6M12.6 7.5h1.6M2.8 2.8l1.1 1.1M11.1 11.1l1.1 1.1M12.2 2.8l-1.1 1.1M3.9 11.1l-1.1 1.1"/>
+          </svg>
+          <svg class="pm-theme-toggle__moon" width="15" height="15" viewBox="0 0 15 15" fill="currentColor" aria-hidden="true">
+            <path d="M13.2 9.4A6 6 0 1 1 5.6 1.8a4.8 4.8 0 1 0 7.6 7.6Z"/>
+          </svg>
+        </button>
       </div>
     </div>
   </header>
@@ -47,9 +72,9 @@
       {% endfor %}
     {% endif %}
 
-    {% for notice in provider.notices %}
-      <div class="pm-notice pm-notice--info">{{ notice }}</div>
-    {% endfor %}
+    {% for p in providers %}{% for notice in p.notices %}
+      <div class="pm-notice pm-notice--{{ notice.level }}">{{ notice.message }}</div>
+    {% endfor %}{% endfor %}
 
     {% block content %}{% endblock %}
   </main>

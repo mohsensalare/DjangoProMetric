@@ -1,0 +1,33 @@
+{% extends "django_prometric/components/card.html" %}
+{% load i18n prometric_extras %}
+
+{% block body %}
+  {% if seo.total %}
+    <div class="pm-stat">
+      <div class="pm-stat__label">{% translate "Crawler visits" %}</div>
+      <div class="pm-num">{{ seo.total|num }}</div>
+      <div class="pm-stat__sub">{% translate "requests by verified search-engine crawlers" %}</div>
+    </div>
+
+    {% if seo.engines %}
+      <div class="pm-eyebrow pm-card__section">{% translate "By engine" %}</div>
+      {% include "django_prometric/components/_bars.html" with items=seo.engines %}
+    {% endif %}
+
+    {% if seo.paths %}
+      <div class="pm-eyebrow pm-card__section">{% translate "Most-crawled pages" %}</div>
+      <table class="pm-table pm-table--bare">
+        <tbody>
+          {% for item in seo.paths %}
+            <tr>
+              <td><span class="pm-route">{{ item.label }}</span></td>
+              <td class="pm-cell-num">{{ item.value|num }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  {% else %}
+    <div class="pm-empty"><p>{% translate "No search-engine crawler visited in this period." %}</p></div>
+  {% endif %}
+{% endblock %}

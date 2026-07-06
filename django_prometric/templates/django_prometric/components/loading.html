@@ -1,0 +1,12 @@
+{% comment %}Skeleton shown while a card fetches its data.{% endcomment %}
+<section class="pm-card pm-card--{{ component.width }}" aria-hidden="true">
+  <header class="pm-card__head">
+    <h2>{{ component.title }}</h2>
+    <span class="pm-card__source">{{ component.provider.verbose_name }}</span>
+  </header>
+  <div class="pm-skel-body">
+    <span class="pm-skel" style="inline-size: 55%"></span>
+    <span class="pm-skel" style="inline-size: 90%"></span>
+    <span class="pm-skel" style="inline-size: 72%"></span>
+  </div>
+</section>

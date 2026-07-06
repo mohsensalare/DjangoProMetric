@@ -1,0 +1,34 @@
+{% extends "django_prometric/components/card.html" %}
+{% load i18n prometric_extras %}
+
+{% block body %}
+  {% if tables %}
+    <div class="pm-table-wrap">
+      <table class="pm-table">
+        <thead>
+          <tr>
+            <th>{% translate "Table" %}</th>
+            <th class="pm-cell-num">{% translate "Size" %}</th>
+            <th class="pm-cell-num">{% translate "Rows" %}</th>
+            <th class="pm-cell-num">{% translate "Dead" %}</th>
+            <th class="pm-cell-num">{% translate "Last autovacuum" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for table in tables %}
+            <tr{% if table.dead_ratio >= dead_warn %} class="pm-row--warn"{% endif %}>
+              <td><code class="pm-sql" dir="ltr">{{ table.name }}</code></td>
+              <td class="pm-cell-num">{{ table.size_bytes|size }}</td>
+              <td class="pm-cell-num">{{ table.rows|num }}</td>
+              <td class="pm-cell-num">{% if table.dead_ratio is not None %}{{ table.dead_ratio|pct }}{% else %}—{% endif %}</td>
+              <td class="pm-cell-num">{% if table.last_autovacuum %}{{ table.last_autovacuum|date:"j M Y" }}{% else %}<span class="pm-cell-none">{% translate "never" %}</span>{% endif %}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="pm-card__hint">{% translate "Largest tables first. A high dead-row share with no recent autovacuum is a bloat warning." %}</p>
+  {% else %}
+    <div class="pm-empty"><p>{% translate "No user tables were found." %}</p></div>
+  {% endif %}
+{% endblock %}

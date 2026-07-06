@@ -2,72 +2,86 @@
 
 The dashboard never talks to a concrete backend (Cloudflare, local
 middleware, …) directly — it only consumes this interface. Third parties can
-subclass :class:`AnalyticsProvider` and point
-``DJANGO_PROMETRIC["ANALYTICS_PROVIDER"]`` at their class to feed the
-dashboard from any data source without touching the package core.
+subclass :class:`AnalyticsProvider` and list their class in
+``DJANGO_PROMETRIC["PROVIDERS"]`` to feed the dashboard from any data source
+without touching the package core.
+
+This module is the one import provider authors need: it defines the contract
+(:class:`AnalyticsProvider`, :class:`ProviderError`) and re-exports the whole
+provider vocabulary — capability constants (:mod:`.capabilities`), time
+windows (:mod:`.periods`), result shapes (:mod:`.types`) and the snapshot
+schema (:mod:`.report`).
 """
 
 from __future__ import annotations
 
-import datetime as dt
-from dataclasses import asdict, dataclass, field
-
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-# ---------------------------------------------------------------------------
-# Capabilities — a provider advertises what it can answer; dashboard
-# components declare what they need and are hidden or locked otherwise.
-# ---------------------------------------------------------------------------
-OVERVIEW = "overview"
-TIMESERIES = "timeseries"
-PATHS = "paths"
-COUNTRY = "country"
-STATUS = "status"
-CACHE = "cache"
-METHOD = "method"
-PERFORMANCE = "performance"
-BANDWIDTH = "bandwidth"
-UNIQUES = "uniques"
-THREATS = "threats"
-VISITS = "visits"
-
-# Breakdown dimensions accepted by AnalyticsProvider.get_breakdown().
-DIM_COUNTRY = "country"
-DIM_STATUS = "status"
-DIM_CACHE = "cache"
-DIM_METHOD = "method"
-
-_PERIODS = {
-    "24h": (_("Last 24 hours"), dt.timedelta(hours=24)),
-    "7d": (_("Last 7 days"), dt.timedelta(days=7)),
-    "30d": (_("Last 30 days"), dt.timedelta(days=30)),
-}
-DEFAULT_PERIOD = "24h"
-
-
-@dataclass(frozen=True)
-class Period:
-    key: str
-    label: str
-    start: dt.datetime
-    end: dt.datetime
-
-    @property
-    def days(self) -> float:
-        return (self.end - self.start).total_seconds() / 86400
-
-    @classmethod
-    def from_key(cls, key: str | None) -> Period:
-        if key not in _PERIODS:
-            key = DEFAULT_PERIOD
-        label, delta = _PERIODS[key]
-        end = timezone.now()
-        return cls(key=key, label=label, start=end - delta, end=end)
-
-    @classmethod
-    def choices(cls):
-        return [(key, label) for key, (label, _delta) in _PERIODS.items()]
+from .capabilities import (  # noqa: F401 — re-exported vocabulary
+    AUDIENCE,
+    BACKEND,
+    BANDWIDTH,
+    BOTS,
+    CACHE,
+    COUNTRY,
+    DATABASE,
+    DIM_CACHE,
+    DIM_COUNTRY,
+    DIM_METHOD,
+    DIM_STATUS,
+    INDEXES,
+    INSIGHTS,
+    ISSUES,
+    METHOD,
+    NETWORK,
+    OVERVIEW,
+    PATHS,
+    PERFORMANCE,
+    QUERIES,
+    SECURITY,
+    SEO,
+    SLOWEST,
+    STATUS,
+    TABLES,
+    THREATS,
+    TIMESERIES,
+    UNIQUES,
+    VISITS,
+)
+from .periods import (  # noqa: F401 — re-exported vocabulary
+    CUSTOM_PERIOD,
+    DEFAULT_PERIOD,
+    Period,
+)
+from .report import (  # noqa: F401 — re-exported vocabulary
+    REPORT_VERSION,
+    Report,
+    ReportItem,
+    ReportRoute,
+)
+from .types import (  # noqa: F401 — re-exported vocabulary
+    INSIGHT_BAD,
+    INSIGHT_GOOD,
+    INSIGHT_WARN,
+    NOTICE_INFO,
+    NOTICE_WARN,
+    BreakdownItem,
+    Cumulative,
+    DatabaseStats,
+    IndexStat,
+    Insight,
+    IssueStat,
+    Notice,
+    OverviewStats,
+    PathStat,
+    PerformanceStats,
+    QueryStat,
+    RouteMetrics,
+    RoutePerformance,
+    TableStat,
+    TimeseriesPoint,
+    with_shares,
+)
 
 
 class ProviderError(Exception):
@@ -88,136 +102,6 @@ class ProviderError(Exception):
         self.kind = kind
 
 
-@dataclass
-class OverviewStats:
-    requests: int = 0
-    unique_visitors: int | None = None
-    page_views: int | None = None
-    bandwidth_bytes: int | None = None
-    cached_requests: int | None = None
-    threats: int | None = None
-    errors: int | None = None
-    avg_response_ms: float | None = None
-
-    @property
-    def cache_ratio(self) -> float | None:
-        if self.cached_requests is None or not self.requests:
-            return None
-        return self.cached_requests / self.requests
-
-    @property
-    def error_ratio(self) -> float | None:
-        if self.errors is None or not self.requests:
-            return None
-        return self.errors / self.requests
-
-
-@dataclass
-class TimeseriesPoint:
-    label: str
-    requests: int = 0
-
-
-@dataclass
-class PathStat:
-    path: str
-    requests: int = 0
-    bandwidth_bytes: int = 0
-    visits: int = 0
-
-
-@dataclass
-class BreakdownItem:
-    label: str
-    value: int = 0
-    share: float = 0.0  # 0.0–1.0 of the listed total
-
-
-def with_shares(items: list[BreakdownItem]) -> list[BreakdownItem]:
-    total = sum(item.value for item in items)
-    if total:
-        for item in items:
-            item.share = item.value / total
-    return items
-
-
-@dataclass
-class PerformanceStats:
-    p50_ms: float | None = None
-    p95_ms: float | None = None
-    p99_ms: float | None = None
-    avg_ms: float | None = None
-
-
-@dataclass
-class RouteMetrics:
-    requests: int = 0
-    visits: int | None = None
-    bandwidth_bytes: int | None = None
-    errors: int | None = None
-    last_seen: dt.datetime | None = None
-    countries: list[BreakdownItem] = field(default_factory=list)
-    statuses: list[BreakdownItem] = field(default_factory=list)
-    methods: list[BreakdownItem] = field(default_factory=list)
-    cache: list[BreakdownItem] = field(default_factory=list)
-    timeseries: list[TimeseriesPoint] = field(default_factory=list)
-    performance: PerformanceStats | None = None
-
-    @property
-    def error_ratio(self) -> float | None:
-        if self.errors is None or not self.requests:
-            return None
-        return self.errors / self.requests
-
-
-# ---------------------------------------------------------------------------
-# Report schema — the exact shape of the JSON stored in ``Snapshot.data``.
-# Snapshots are kept for months, so this schema is deliberately independent
-# of the live dataclasses above and carries a version number. Always build a
-# Report and call ``as_dict()``; never hand-write the dict.
-# ---------------------------------------------------------------------------
-REPORT_VERSION = 1
-
-
-@dataclass
-class ReportItem:
-    """One breakdown line of a report, e.g. a country or a status code."""
-
-    label: str
-    value: int = 0
-
-
-@dataclass
-class ReportRoute:
-    """One row of a report's top-routes table."""
-
-    route: str
-    requests: int = 0
-    bandwidth_bytes: int = 0
-
-
-@dataclass
-class Report:
-    """A report as stored in ``Snapshot.data`` — this class is the schema.
-
-    Write-only: snapshots are built through this class, while stored ones
-    are read back as plain dicts with exactly these keys.
-    """
-
-    window_start: str  # ISO datetime the data covers from
-    window_end: str  # ISO datetime the data covers to
-    overview: OverviewStats
-    countries: list[ReportItem] = field(default_factory=list)  # largest first
-    statuses: list[ReportItem] = field(default_factory=list)  # largest first
-    top_routes: list[ReportRoute] = field(default_factory=list)  # busiest first
-    unmatched_paths: int = 0  # concrete paths no route claimed
-    unmatched_requests: int = 0
-    version: int = REPORT_VERSION
-
-    def as_dict(self) -> dict:
-        return asdict(self)
-
-
 class AnalyticsProvider:
     """Base class every analytics data source implements.
 
@@ -227,11 +111,19 @@ class AnalyticsProvider:
 
     slug = "base"
     verbose_name = _("Analytics")
+    # One line explaining what kind of data this source contributes,
+    # e.g. "Edge traffic" vs "Application performance".
+    kind = _("Analytics")
+    # Farthest back (in days) this source can answer, or None for unlimited.
+    # The UI warns and offers clamping when a request exceeds it.
+    max_period_days: int | None = None
+    # Template rendered as this provider's section on the route-detail page.
+    route_template = ""
 
     def __init__(self):
         # Human-readable notes collected while answering queries, e.g.
         # "time range clamped to 24h by your plan". Rendered in the UI.
-        self.notices: list[str] = []
+        self.notices: list[Notice] = []
 
     # -- configuration -----------------------------------------------------
     @property
@@ -249,9 +141,24 @@ class AnalyticsProvider:
     def capabilities(self) -> set:
         return set()
 
-    def add_notice(self, message) -> None:
-        if message not in self.notices:
-            self.notices.append(message)
+    def add_notice(self, message, level: str = NOTICE_INFO) -> None:
+        if not any(notice.message == message for notice in self.notices):
+            self.notices.append(Notice(message=message, level=level))
+
+    def exceeds_limit(self, period: Period) -> bool:
+        """Whether the requested range is longer than this source can serve."""
+        return self.max_period_days is not None and period.days > self.max_period_days
+
+    def limit_period(self, period: Period) -> Period:
+        """Clamp the period to this source's reach, leaving a notice."""
+        if not self.exceeds_limit(period):
+            return period
+        self.add_notice(
+            _("%(name)s can only look back %(days)s days; the window was shortened.")
+            % {"name": self.verbose_name, "days": self.max_period_days},
+            level=NOTICE_WARN,
+        )
+        return period.clamped_to(self.max_period_days)
 
     # -- data --------------------------------------------------------------
     def get_overview(self, period: Period) -> OverviewStats:
@@ -273,6 +180,73 @@ class AnalyticsProvider:
     def get_performance(self, period: Period) -> PerformanceStats | None:
         """Site-wide response-time percentiles, when available."""
         return None
+
+    def get_slowest_routes(self, period: Period, limit: int = 10) -> list[RoutePerformance]:
+        """Routes ordered by p95 response time, slowest first."""
+        return []
+
+    def get_top_issues(self, period: Period, limit: int = 10) -> list[IssueStat]:
+        """Most frequent grouped application errors."""
+        return []
+
+    def get_security(self, period: Period) -> dict:
+        """Firewall mitigations: total plus actions/sources/countries/paths
+        breakdowns (lists of :class:`BreakdownItem`)."""
+        return {"total": 0, "actions": [], "sources": [], "countries": [], "paths": []}
+
+    def get_bots(self, period: Period) -> dict:
+        """Human vs automated traffic: ``total`` requests, ``humans``,
+        ``bots``, and a ``categories`` breakdown of the automated share."""
+        return {"total": 0, "humans": 0, "bots": 0, "categories": []}
+
+    def get_seo(self, period: Period) -> dict:
+        """Search-engine crawler activity: ``total`` crawler requests,
+        ``engines`` breakdown, and the most crawled ``paths``."""
+        return {"total": 0, "engines": [], "paths": []}
+
+    def get_network(self, period: Period) -> dict:
+        """Protocol mix: ``http_versions`` and ``tls`` breakdowns
+        (lists of :class:`BreakdownItem`)."""
+        return {"http_versions": [], "tls": []}
+
+    def get_audience(self, period: Period) -> dict:
+        """Real users' clients — bots excluded where the source can tell:
+        ``browsers``, ``os`` and ``devices`` breakdowns."""
+        return {"browsers": [], "os": [], "devices": []}
+
+    def get_slowest_queries(self, period: Period, limit: int = 8) -> list[QueryStat]:
+        """Database queries ordered by total time spent, worst first."""
+        return []
+
+    def get_database_stats(self, period: Period) -> DatabaseStats | None:
+        """Database-level health: size, connections and lifetime counters."""
+        return None
+
+    def get_table_stats(self, period: Period, limit: int = 10) -> list[TableStat]:
+        """The largest user tables, biggest first."""
+        return []
+
+    def get_index_stats(self, period: Period, limit: int = 10) -> dict:
+        """Unused and most-used indexes: ``{"unused": [...], "used": [...]}``."""
+        return {"unused": [], "used": []}
+
+    def get_backend(self, period: Period) -> dict:
+        """Where application time goes: an ``ops`` breakdown of total time
+        (values in ms) across database, templates, upstream calls, …"""
+        return {"ops": []}
+
+    def get_insights(self, period: Period) -> list[Insight]:
+        """Actionable findings this source can derive from its own data."""
+        return []
+
+    def get_route_context(self, route, period: Period) -> dict:
+        """Context for this provider's section on the route-detail page.
+
+        The default ships the full :class:`RouteMetrics`; providers with a
+        different shape of per-route data override this together with
+        ``route_template``.
+        """
+        return {"metrics": self.get_route_metrics(route, period)}
 
     def invalidate_cache(self) -> None:
         """Drop any cached upstream responses (used by the refresh button)."""

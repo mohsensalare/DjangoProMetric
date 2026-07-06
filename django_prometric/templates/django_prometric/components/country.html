@@ -1,5 +1,22 @@
 {% extends "django_prometric/components/card.html" %}
+{% load i18n prometric_extras %}
 
 {% block body %}
-  {% include "django_prometric/components/_bars.html" with items=items kind="country" %}
+  {% if items %}
+    {{ chart|json_script:component.slot }}
+    <div class="pm-donut-row">
+      <div class="pm-donut"><canvas data-donut="{{ component.slot }}" role="img" aria-label="{% translate 'Requests by country' %}"></canvas></div>
+      <ul class="pm-legend">
+        {% for item in items %}
+          <li>
+            <span class="pm-swatch pm-swatch--{{ forloop.counter }}" aria-hidden="true"></span>
+            <span class="pm-legend__label">{{ item.label|flag }} {{ item.label }}</span>
+            <span class="pm-legend__value">{{ item.share|pct }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% else %}
+    <div class="pm-empty"><p>{% translate "No data in this period." %}</p></div>
+  {% endif %}
 {% endblock %}

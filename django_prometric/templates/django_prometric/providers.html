@@ -1,0 +1,41 @@
+{% extends "django_prometric/base.html" %}
+{% load i18n %}
+
+{% block title %}{% translate "Providers" %}{% endblock %}
+{% block page_title %}{% translate "Data sources" %}{% endblock %}
+
+{% block content %}
+  <div class="pm-grid">
+    {% for entry in all_providers %}
+      <section class="pm-card pm-card--half pm-provider">
+        <header class="pm-card__head">
+          <h2 class="pm-provider__name">{{ entry.provider.verbose_name }}</h2>
+          {% if entry.provider.is_configured %}
+            <span class="pm-badge pm-badge--on">{% translate "Connected" %}</span>
+          {% else %}
+            <span class="pm-badge">{% translate "Not configured" %}</span>
+          {% endif %}
+        </header>
+        <p class="pm-provider__kind">{{ entry.provider.kind }}</p>
+        {% if entry.provider.is_configured %}
+          {% if entry.provider.description %}<p class="pm-provider__desc">{{ entry.provider.description }}</p>{% endif %}
+        {% else %}
+          <p class="pm-provider__desc">{{ entry.provider.configuration_help }}</p>
+        {% endif %}
+        <div class="pm-provider__caps">
+          {% for capability in entry.capabilities %}<span class="pm-badge">{{ capability }}</span>{% endfor %}
+        </div>
+        {% if entry.provider.max_period_days %}
+          <p class="pm-note">
+            {% blocktranslate with days=entry.provider.max_period_days %}Looks back up to {{ days }} days.{% endblocktranslate %}
+          </p>
+        {% endif %}
+        {% if entry.provider.is_configured %}
+          <p class="pm-provider__link">
+            <a href="{% url 'django_prometric:provider-detail' entry.provider.slug %}?{{ period.as_query }}">{% translate "View stats" %} →</a>
+          </p>
+        {% endif %}
+      </section>
+    {% endfor %}
+  </div>
+{% endblock %}

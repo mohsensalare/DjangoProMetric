@@ -1,0 +1,20 @@
+{% load i18n %}
+{% comment %}Period picker fields: preset select plus a free date range.
+Embed inside a form; prometric.js reveals the dates when "custom" is chosen
+and submits preset changes right away.{% endcomment %}
+<span class="pm-period" data-period-control>
+  <select class="pm-select" name="period" aria-label="{% translate 'Period' %}">
+    {% for key, label in periods %}
+      <option value="{{ key }}" {% if key == period.key %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+    <option value="custom" {% if period.is_custom %}selected{% endif %}>{% translate "Custom range…" %}</option>
+  </select>
+  <span class="pm-period__dates" {% if not period.is_custom %}hidden{% endif %}>
+    <input class="pm-input pm-input--date" type="date" name="from"
+           value="{{ period.start|date:'Y-m-d' }}" aria-label="{% translate 'From date' %}">
+    <span class="pm-period__sep" aria-hidden="true">–</span>
+    <input class="pm-input pm-input--date" type="date" name="to"
+           value="{{ period.last_day|date:'Y-m-d' }}" aria-label="{% translate 'To date' %}">
+    <button type="submit" class="pm-btn">{% translate "Apply" %}</button>
+  </span>
+</span>

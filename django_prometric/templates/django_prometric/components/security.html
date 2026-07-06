@@ -1,0 +1,54 @@
+{% extends "django_prometric/components/card.html" %}
+{% load i18n prometric_extras %}
+
+{% block body %}
+  {% if security.total %}
+    <div class="pm-stat">
+      <div class="pm-stat__label">{% translate "Mitigated requests" %}</div>
+      <div class="pm-num">{{ security.total|num }}</div>
+      <div class="pm-stat__sub">{% translate "challenged or blocked by the firewall in this period" %}</div>
+    </div>
+
+    {% if security.actions %}
+      <div class="pm-eyebrow pm-security__head">{% translate "By action" %}</div>
+      <div class="pm-bars">
+        {% for item in security.actions %}
+          <div class="pm-bar">
+            <span class="pm-bar__label">{{ item.label }}</span>
+            <span class="pm-bar__track"><span class="pm-bar__fill pm-bar__fill--warn" style="--pm-share: {% widthratio item.share 1 100 %}"></span></span>
+            <span class="pm-bar__value">{{ item.value|num }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if security.sources %}
+      <div class="pm-eyebrow pm-security__head">{% translate "By defence" %}</div>
+      <div class="pm-bars">
+        {% for item in security.sources %}
+          <div class="pm-bar">
+            <span class="pm-bar__label">{{ item.label }}</span>
+            <span class="pm-bar__track"><span class="pm-bar__fill" style="--pm-share: {% widthratio item.share 1 100 %}"></span></span>
+            <span class="pm-bar__value">{{ item.value|num }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if security.paths %}
+      <div class="pm-eyebrow pm-security__head">{% translate "Most-targeted paths" %}</div>
+      <table class="pm-table pm-table--bare">
+        <tbody>
+          {% for item in security.paths %}
+            <tr>
+              <td><span class="pm-route">{{ item.label }}</span></td>
+              <td class="pm-cell-num">{{ item.value|num }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  {% else %}
+    <div class="pm-empty"><p>{% translate "Nothing was blocked or challenged in this period." %}</p></div>
+  {% endif %}
+{% endblock %}

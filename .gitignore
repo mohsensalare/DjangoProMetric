@@ -37,3 +37,7 @@ example/media/
 
 # OS
 .DS_Store
+
+# Internal notes and planning — not part of the published package
+/provides api guaid/
+/POSTGRES_PROVIDER_PLAN.md

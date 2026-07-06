@@ -6,30 +6,56 @@
 
 {% block page_actions %}
   <form method="get" data-autosubmit>
-    <select class="pm-select" name="period" aria-label="{% translate 'Period' %}">
-      {% for key, label in periods %}
-        <option value="{{ key }}" {% if key == period.key %}selected{% endif %}>{{ label }}</option>
-      {% endfor %}
-    </select>
+    {% include "django_prometric/_period.html" %}
   </form>
   <form method="post" action="{% url 'django_prometric:refresh' %}">
     {% csrf_token %}
     <input type="hidden" name="next" value="{{ request.get_full_path }}">
     <button type="submit" class="pm-btn">{% translate "Refresh" %}</button>
   </form>
-  <form method="post" action="{% url 'django_prometric:snapshot-take' %}">
-    {% csrf_token %}
-    <input type="hidden" name="period" value="{{ period.key }}">
-    <button type="submit" class="pm-btn pm-btn--primary">{% translate "Save snapshot" %}</button>
-  </form>
+  {% if customizable %}
+    <button type="button" class="pm-btn" data-customize-toggle aria-expanded="false"
+            aria-controls="pm-customize">{% translate "Customize" %}</button>
+  {% endif %}
 {% endblock %}
 
 {% block content %}
-  {% if error %}
-    <div class="pm-notice pm-notice--error">{{ error.message }}</div>
-  {% else %}
-    <div class="pm-grid">
-      {% for card in cards %}{{ card }}{% endfor %}
+  {% if customizable %}
+    <div class="pm-customize" id="pm-customize" hidden
+         data-prefs-url="{% url 'django_prometric:preferences-cards' %}">
+      <div class="pm-customize__head">{% translate "Cards on this page" %}</div>
+      <div class="pm-customize__options">
+        {% for card in cards %}
+          <span class="pm-customize__row" data-order-row="{{ card.component.slot }}">
+            <label class="pm-check">
+              <input type="checkbox" {% if card.component.slot not in hidden_slots %}checked{% endif %}
+                     data-card-toggle="{{ card.component.slot }}">
+              {{ card.component.title }}
+              <span class="pm-customize__source">{{ card.component.provider.verbose_name }}</span>
+            </label>
+            <button type="button" class="pm-move" data-move="-1" aria-label="{% translate 'Move earlier' %}">
+              <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 7.25 6 3.75l3.5 3.5"/></svg>
+            </button>
+            <button type="button" class="pm-move" data-move="1" aria-label="{% translate 'Move later' %}">
+              <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.75 6 8.25l3.5-3.5"/></svg>
+            </button>
+          </span>
+        {% endfor %}
+      </div>
     </div>
   {% endif %}
+
+  <div class="pm-grid">
+    {% for card in cards %}
+      <div class="pm-slot pm-slot--{{ card.component.width }}" data-slot="{{ card.component.slot }}"
+           data-card-url="{{ card.url }}" aria-busy="true"
+           {% if card.component.slot in hidden_slots %}hidden{% endif %}>
+        {% include "django_prometric/components/loading.html" with component=card.component %}
+      </div>
+    {% empty %}
+      <div class="pm-empty pm-card">
+        <p>{% translate "No cards to show — the configured data sources answered nothing for this period." %}</p>
+      </div>
+    {% endfor %}
+  </div>
 {% endblock %}

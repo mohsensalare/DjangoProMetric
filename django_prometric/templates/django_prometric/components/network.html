@@ -1,0 +1,17 @@
+{% extends "django_prometric/components/card.html" %}
+{% load i18n %}
+
+{% block body %}
+  {% if network.http_versions or network.tls %}
+    {% if network.http_versions %}
+      <div class="pm-eyebrow pm-card__section">{% translate "HTTP versions" %}</div>
+      {% include "django_prometric/components/_bars.html" with items=network.http_versions %}
+    {% endif %}
+    {% if network.tls %}
+      <div class="pm-eyebrow pm-card__section">{% translate "TLS versions" %}</div>
+      {% include "django_prometric/components/_bars.html" with items=network.tls %}
+    {% endif %}
+  {% else %}
+    <div class="pm-empty"><p>{% translate "No data in this period." %}</p></div>
+  {% endif %}
+{% endblock %}

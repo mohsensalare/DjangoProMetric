@@ -1,0 +1,45 @@
+{% extends "django_prometric/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ provider.verbose_name }}{% endblock %}
+{% block page_title %}{{ provider.verbose_name }}{% endblock %}
+
+{% block page_meta %}
+  <span class="pm-page-head__meta">
+    {{ provider.kind }}{% if provider.description %} · {{ provider.description }}{% endif %}
+  </span>
+{% endblock %}
+
+{% block page_actions %}
+  {% if provider.is_configured %}
+    <form method="get" data-autosubmit>
+      {% include "django_prometric/_period.html" %}
+    </form>
+    <form method="post" action="{% url 'django_prometric:refresh' %}">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <button type="submit" class="pm-btn">{% translate "Refresh" %}</button>
+    </form>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  {% if provider.is_configured %}
+    <div class="pm-grid">
+      {% for card in cards %}
+        <div class="pm-slot pm-slot--{{ card.component.width }}" data-card-url="{{ card.url }}" aria-busy="true">
+          {% include "django_prometric/components/loading.html" with component=card.component %}
+        </div>
+      {% empty %}
+        <div class="pm-empty pm-card">
+          <p>{% translate "This source answered nothing for this period." %}</p>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="pm-onboard pm-card">
+      <h2>{% translate "Not configured" %}</h2>
+      <p>{{ provider.configuration_help }}</p>
+    </div>
+  {% endif %}
+{% endblock %}

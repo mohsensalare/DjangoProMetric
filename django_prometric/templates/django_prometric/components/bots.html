@@ -1,0 +1,23 @@
+{% extends "django_prometric/components/card.html" %}
+{% load i18n prometric_extras %}
+
+{% block body %}
+  {% if bots.total %}
+    <div class="pm-donut-row">
+      {{ chart|json_script:component.slot }}
+      <div class="pm-donut"><canvas data-donut="{{ component.slot }}" role="img" aria-label="{% translate 'People versus verified bots' %}"></canvas></div>
+      <div class="pm-stat">
+        <div class="pm-stat__label">{% translate "Verified bots" %}</div>
+        <div class="pm-num">{{ bot_share|pct }}</div>
+        <div class="pm-stat__sub">{% blocktranslate with count=bots.bots|num %}{{ count }} requests came from crawlers Cloudflare has verified{% endblocktranslate %}</div>
+      </div>
+    </div>
+
+    {% if bots.categories %}
+      <div class="pm-eyebrow pm-card__section">{% translate "By crawler type" %}</div>
+      {% include "django_prometric/components/_bars.html" with items=bots.categories %}
+    {% endif %}
+  {% else %}
+    <div class="pm-empty"><p>{% translate "No traffic in this period." %}</p></div>
+  {% endif %}
+{% endblock %}

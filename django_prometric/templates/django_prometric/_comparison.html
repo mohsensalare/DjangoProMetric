@@ -1,0 +1,45 @@
+{% load i18n prometric_extras %}
+{% comment %}Side-by-side comparison tables, one card per section.
+Context: sections (from snapshots.comparison / route_comparison),
+columns (Snapshot list, the first one is the baseline),
+current (optional Snapshot whose column is not linked).{% endcomment %}
+{% for section in sections %}
+  <section class="pm-card">
+    <header class="pm-card__head">
+      <h2>{{ section.title|default:section.name }}</h2>
+      {% if section.title %}<span class="pm-badge">{{ section.name }}</span>{% endif %}
+    </header>
+    <div class="pm-table-wrap">
+      <table class="pm-table">
+        <thead>
+          <tr>
+            <th>{{ section.first_column }}</th>
+            {% for snap in columns %}
+              <th class="pm-cell-num">
+                {% if snap.pk == current.pk %}{{ snap.taken_at|date:"M j, Y H:i" }}
+                {% else %}<a href="{% url 'django_prometric:snapshot-detail' snap.pk %}">{{ snap.taken_at|date:"M j, Y H:i" }}</a>{% endif %}
+                {% if columns|length > 1 and forloop.first %}<span class="pm-badge pm-badge--base">{% translate "baseline" %}</span>{% endif %}
+              </th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in section.rows %}
+            <tr>
+              <td>{% if row.mono %}<span class="pm-route">{{ row.label }}</span>{% else %}{{ row.label }}{% endif %}</td>
+              {% for cell in row.cells %}
+                <td class="pm-cell-num">
+                  {% if cell.value == None %}<span class="pm-cell-none">—</span>
+                  {% elif row.is_bytes %}{{ cell.value|size }}{% elif row.is_rate %}{{ cell.value|pct }}{% elif row.unit == "ms" %}{{ cell.value|ms }}{% else %}{{ cell.value|num }}{% endif %}
+                  {% if cell.delta != None %}
+                    <div class="pm-cell-delta{% if cell.cls %} pm-delta--{{ cell.cls }}{% endif %}">{{ cell.delta|delta }}</div>
+                  {% endif %}
+                </td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+{% endfor %}

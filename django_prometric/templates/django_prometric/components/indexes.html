@@ -1,0 +1,59 @@
+{% extends "django_prometric/components/card.html" %}
+{% load i18n prometric_extras %}
+
+{% block body %}
+  {% if unused %}
+    <div class="pm-card__section">
+      <strong>{% translate "Unused indexes" %}</strong>
+      <span class="pm-hint">{% blocktranslate with total=reclaimable|filesizeformat %}{{ total }} reclaimable{% endblocktranslate %}</span>
+    </div>
+    <div class="pm-table-wrap">
+      <table class="pm-table">
+        <thead>
+          <tr>
+            <th>{% translate "Index" %}</th>
+            <th>{% translate "Table" %}</th>
+            <th class="pm-cell-num">{% translate "Size" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for index in unused %}
+            <tr>
+              <td><code class="pm-sql" dir="ltr">{{ index.name }}</code></td>
+              <td><code class="pm-sql" dir="ltr">{{ index.table }}</code></td>
+              <td class="pm-cell-num">{{ index.size_bytes|size }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="pm-card__hint">{% translate "Never scanned since the last statistics reset (primary-key and unique indexes excluded). Confirm over a full workload before dropping." %}</p>
+  {% else %}
+    <div class="pm-empty"><p>{% translate "No unused indexes — every index is earning its space." %}</p></div>
+  {% endif %}
+
+  {% if used %}
+    <div class="pm-card__section"><strong>{% translate "Most-used indexes" %}</strong></div>
+    <div class="pm-table-wrap">
+      <table class="pm-table">
+        <thead>
+          <tr>
+            <th>{% translate "Index" %}</th>
+            <th class="pm-cell-num">{% translate "Scans" %}</th>
+            <th class="pm-cell-num">{% translate "Size" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for index in used %}
+            <tr>
+              <td><code class="pm-sql" dir="ltr">{{ index.name }}</code></td>
+              <td class="pm-cell-num">{{ index.scans|num }}</td>
+              <td class="pm-cell-num">{{ index.size_bytes|size }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="pm-card__hint">{% translate "Scan counts are lifetime totals since the last statistics reset." %}</p>
+  {% endif %}
+{% endblock %}

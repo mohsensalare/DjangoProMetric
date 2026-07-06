@@ -1,5 +1,5 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling >= 1.27"]
 build-backend = "hatchling.build"
 
 [project]
@@ -7,7 +7,8 @@ name = "django-prometric"
 description = "Route-aware analytics dashboard for Django: discover your URLs and DRF APIs, and see traffic, performance, and audience metrics for each of them."
 readme = "README.md"
 requires-python = ">=3.9"
-license = { file = "LICENSE" }
+license = "MIT"
+license-files = ["LICENSE"]
 authors = [
     { name = "Mohsen Salare", email = "mohsensalare@gmail.com" },
 ]
@@ -31,7 +32,6 @@ classifiers = [
     "Framework :: Django :: 5.2",
     "Framework :: Django :: 6.0",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
@@ -42,6 +42,7 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
     "Topic :: Internet :: WWW/HTTP :: Site Management",
+    "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: System :: Monitoring",
 ]
 dependencies = [
@@ -58,11 +59,26 @@ Issues = "https://github.com/mohsensalare/DjangoProMetric/issues"
 Author = "https://mohsensalare.ir"
 
 [project.optional-dependencies]
+# One extra per provider, so a project installs only what its providers need.
+# Cloudflare and Sentry run on the standard library alone; their extras are
+# intentionally empty so `pip install "django-prometric[sentry]"` works today
+# and keeps working if either provider ever grows a real dependency.
+cloudflare = []
+sentry = []
+postgres = [
+    "psycopg[binary]>=3.1",
+]
+full = [
+    "django-prometric[cloudflare,postgres,sentry]",
+]
 dev = [
+    "django-prometric[full]",
     "pytest",
     "pytest-django",
     "djangorestframework",
     "ruff",
+    "build",
+    "twine",
 ]
 
 [tool.hatch.version]
@@ -77,6 +93,7 @@ include = [
     "/tests",
     "/docs",
     "/README.md",
+    "/RELEASING.md",
     "/LICENSE",
     "/CHANGELOG.md",
 ]

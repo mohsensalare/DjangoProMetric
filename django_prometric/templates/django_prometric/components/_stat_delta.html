@@ -1,0 +1,7 @@
+{% load prometric_extras %}
+{% comment %}Change pill under an overview stat. Context: change = {"delta": …, "cls": …} or None.{% endcomment %}
+{% if change %}
+  <div class="pm-stat__sub">
+    <span class="pm-delta-pill{% if change.cls %} pm-delta--{{ change.cls }}{% endif %}">{{ change.delta|delta }}</span>
+  </div>
+{% endif %}

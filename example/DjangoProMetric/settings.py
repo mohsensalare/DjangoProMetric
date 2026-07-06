@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -85,7 +86,7 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
-    }
+    },
 }
 
 
@@ -131,8 +132,20 @@ STATIC_URL = "static/"
 # CLOUDFLARE_ZONE_ID, CLOUDFLARE_ACCOUNT_ID); until they are set the
 # dashboard shows setup instructions instead of data.
 
+# "postgres" reads a PostgreSQL database's own statistics. This demo runs on
+# sqlite, so instead of pointing DB_ALIAS at a Postgres connection we give it a
+# direct connection from the environment — set PROMETRIC_PG_* to inspect any
+# reachable database. Until they are set the provider shows setup help.
 DJANGO_PROMETRIC = {
-    "ANALYTICS_PROVIDER": "auto",
+    "PROVIDERS": ["cloudflare", "sentry", "postgres"],
+    "POSTGRES": {
+        "DSN": os.environ.get("PROMETRIC_PG_DSN", ""),
+        "NAME": os.environ.get("PROMETRIC_PG_NAME", ""),
+        "USER": os.environ.get("PROMETRIC_PG_USER", "postgres"),
+        "PASSWORD": os.environ.get("PROMETRIC_PG_PASSWORD", ""),
+        "HOST": os.environ.get("PROMETRIC_PG_HOST", "localhost"),
+        "PORT": os.environ.get("PROMETRIC_PG_PORT", "5432"),
+    },
     "ROUTES": {
         "MODE": "all",
         "EXCLUDE_ADMIN": True,

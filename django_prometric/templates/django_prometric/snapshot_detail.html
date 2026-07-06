@@ -6,7 +6,11 @@
 
 {% block page_meta %}
   <span class="pm-page-head__meta">
-    {{ snapshot.provider }} · {{ snapshot.period }} · {{ snapshot.taken_at|date:"M j, Y H:i" }}
+    {% for slug in snapshot.provider_slugs %}<span class="pm-badge">{{ slug }}</span> {% endfor %}
+    {% if snapshot.window_start %}
+      {{ snapshot.window_start|date:"M j, Y" }} – {{ snapshot.window_end|date:"M j, Y" }} ·
+    {% endif %}
+    {% blocktranslate with taken=snapshot.taken_at|date:"M j, Y H:i" %}taken {{ taken }}{% endblocktranslate %}
   </span>
 {% endblock %}
 
@@ -33,101 +37,108 @@
   {% endif %}
 
   <div class="pm-grid">
-    <section class="pm-card">
-      <header class="pm-card__head">
-        <h2>{% if series|length > 1 %}{% translate "Comparison" %}{% else %}{% translate "Overview" %}{% endif %}</h2>
-      </header>
-      <div class="pm-table-wrap">
-        <table class="pm-table">
-          <thead>
-            <tr>
-              <th>{% translate "Metric" %}</th>
-              {% for item in series %}
-                <th class="pm-cell-num">
-                  {% if item.pk == snapshot.pk %}{{ item.taken_at|date:"M j, H:i" }}
-                  {% else %}<a href="{% url 'django_prometric:snapshot-detail' item.pk %}">{{ item.taken_at|date:"M j, H:i" }}</a>{% endif %}
-                </th>
-              {% endfor %}
-              {% if series|length > 1 %}<th class="pm-cell-num">{% translate "Change" %}</th>{% endif %}
-            </tr>
-          </thead>
-          <tbody>
-            {% for row in rows %}
-              <tr>
-                <td>{{ row.label }}</td>
-                {% for value in row.values %}
-                  <td class="pm-cell-num">{% if row.key == "bandwidth_bytes" %}{{ value|size }}{% else %}{{ value|num }}{% endif %}</td>
+    {% include "django_prometric/_comparison.html" with columns=series current=snapshot %}
+
+    {% for slug, report in snapshot.reports.items %}
+      {% if report.clamped %}
+        <div class="pm-notice">
+          {% blocktranslate %}The {{ slug }} window was shortened to this source's maximum reach when the snapshot was taken.{% endblocktranslate %}
+        </div>
+      {% endif %}
+
+      {% if report.top_routes %}
+        <section class="pm-card">
+          <header class="pm-card__head"><h2>{% translate "Top routes" %}</h2><span class="pm-badge">{{ slug }}</span></header>
+          <div class="pm-table-wrap">
+            <table class="pm-table">
+              <thead>
+                <tr>
+                  <th>{% translate "Route" %}</th>
+                  <th class="pm-cell-num">{% translate "Requests" %}</th>
+                  <th class="pm-cell-num">{% translate "Bandwidth" %}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for row in report.top_routes %}
+                  <tr>
+                    <td><span class="pm-route">{{ row.route|route_html }}</span></td>
+                    <td class="pm-cell-num">{{ row.requests|num }}</td>
+                    <td class="pm-cell-num">{{ row.bandwidth_bytes|size }}</td>
+                  </tr>
                 {% endfor %}
-                {% if series|length > 1 %}
-                  <td class="pm-cell-num {% if row.change > 0 %}pm-delta--up{% elif row.change < 0 %}pm-delta--down{% endif %}">{{ row.change|delta }}</td>
-                {% endif %}
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </section>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      {% endif %}
 
-    {% if snapshot.data.top_routes %}
-      <section class="pm-card">
-        <header class="pm-card__head"><h2>{% translate "Top routes" %}</h2></header>
-        <div class="pm-table-wrap">
-          <table class="pm-table">
-            <thead>
-              <tr>
-                <th>{% translate "Route" %}</th>
-                <th class="pm-cell-num">{% translate "Requests" %}</th>
-                <th class="pm-cell-num">{% translate "Bandwidth" %}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for row in snapshot.data.top_routes %}
+      {% if report.slowest_routes %}
+        <section class="pm-card">
+          <header class="pm-card__head"><h2>{% translate "Slowest routes" %}</h2><span class="pm-badge">{{ slug }}</span></header>
+          <div class="pm-table-wrap">
+            <table class="pm-table">
+              <thead>
                 <tr>
-                  <td><span class="pm-route">{{ row.route|route_html }}</span></td>
-                  <td class="pm-cell-num">{{ row.requests|num }}</td>
-                  <td class="pm-cell-num">{{ row.bandwidth_bytes|size }}</td>
+                  <th>{% translate "Transaction" %}</th>
+                  <th class="pm-cell-num">{% translate "Requests" %}</th>
+                  <th class="pm-cell-num">p50</th>
+                  <th class="pm-cell-num">p95</th>
+                  <th class="pm-cell-num">p99</th>
+                  <th class="pm-cell-num">{% translate "Failure rate" %}</th>
                 </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </section>
-    {% endif %}
+              </thead>
+              <tbody>
+                {% for row in report.slowest_routes %}
+                  <tr>
+                    <td><span class="pm-route">{{ row.transaction }}</span></td>
+                    <td class="pm-cell-num">{{ row.requests|num }}</td>
+                    <td class="pm-cell-num">{{ row.p50_ms|ms }}</td>
+                    <td class="pm-cell-num">{{ row.p95_ms|ms }}</td>
+                    <td class="pm-cell-num">{{ row.p99_ms|ms }}</td>
+                    <td class="pm-cell-num">{{ row.failure_rate|pct }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      {% endif %}
 
-    {% if snapshot.data.countries %}
-      <section class="pm-card pm-card--half">
-        <header class="pm-card__head"><h2>{% translate "Countries" %}</h2></header>
-        <div class="pm-table-wrap">
-          <table class="pm-table">
-            <tbody>
-              {% for item in snapshot.data.countries %}
-                <tr>
-                  <td>{{ item.label|flag }} {{ item.label }}</td>
-                  <td class="pm-cell-num">{{ item.value|num }}</td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </section>
-    {% endif %}
+      {% if report.countries %}
+        <section class="pm-card pm-card--half">
+          <header class="pm-card__head"><h2>{% translate "Countries" %}</h2><span class="pm-badge">{{ slug }}</span></header>
+          <div class="pm-table-wrap">
+            <table class="pm-table">
+              <tbody>
+                {% for item in report.countries %}
+                  <tr>
+                    <td>{{ item.label|flag }} {{ item.label }}</td>
+                    <td class="pm-cell-num">{{ item.value|num }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      {% endif %}
 
-    {% if snapshot.data.statuses %}
-      <section class="pm-card pm-card--half">
-        <header class="pm-card__head"><h2>{% translate "Status codes" %}</h2></header>
-        <div class="pm-table-wrap">
-          <table class="pm-table">
-            <tbody>
-              {% for item in snapshot.data.statuses %}
-                <tr>
-                  <td>{{ item.label }}</td>
-                  <td class="pm-cell-num">{{ item.value|num }}</td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </section>
-    {% endif %}
+      {% if report.statuses %}
+        <section class="pm-card pm-card--half">
+          <header class="pm-card__head"><h2>{% translate "Status codes" %}</h2><span class="pm-badge">{{ slug }}</span></header>
+          <div class="pm-table-wrap">
+            <table class="pm-table">
+              <tbody>
+                {% for item in report.statuses %}
+                  <tr>
+                    <td>{{ item.label }}</td>
+                    <td class="pm-cell-num">{{ item.value|num }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      {% endif %}
+    {% endfor %}
   </div>
 {% endblock %}

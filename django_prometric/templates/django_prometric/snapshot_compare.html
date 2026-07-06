@@ -1,0 +1,68 @@
+{% extends "django_prometric/base.html" %}
+{% load i18n prometric_extras %}
+
+{% block title %}{% translate "Compare snapshots" %}{% endblock %}
+{% block page_title %}{% translate "Compare snapshots" %}{% endblock %}
+
+{% block page_meta %}
+  <span class="pm-page-head__meta">
+    {% for snap in snaps %}<span class="pm-badge">#{{ snap.pk }} · {{ snap.taken_at|date:"M j, H:i" }}</span> {% endfor %}
+  </span>
+{% endblock %}
+
+{% block page_actions %}
+  <form method="get" data-autosubmit class="pm-baseline">
+    {% for snap in snaps %}<input type="hidden" name="s" value="{{ snap.pk }}">{% endfor %}
+    <label class="pm-baseline__label" for="pm-baseline-pick">{% translate "Compare against" %}</label>
+    <select id="pm-baseline-pick" name="base" class="pm-select">
+      {% for snap in snaps %}
+        <option value="{{ snap.pk }}" {% if forloop.first %}selected{% endif %}>
+          #{{ snap.pk }} — {{ snap.taken_at|date:"M j, Y H:i" }}
+        </option>
+      {% endfor %}
+    </select>
+  </form>
+{% endblock %}
+
+{% block content %}
+  {% if filters_changed %}
+    <div class="pm-notice">
+      {% translate "The route filters differ between these snapshots, so route-level numbers may not be directly comparable." %}
+    </div>
+  {% endif %}
+
+  {% if headline %}
+    <section class="pm-card pm-headline">
+      <div class="pm-stats">
+        {% for row in headline %}
+          {% with cell=row.cells|last %}
+            <div class="pm-stat">
+              <div class="pm-stat__label">{{ row.label }}</div>
+              <div class="pm-num">
+                {% if cell.value == None %}—
+                {% elif row.is_bytes %}{{ cell.value|size }}{% elif row.is_rate %}{{ cell.value|pct }}{% elif row.unit == "ms" %}{{ cell.value|ms }}{% else %}{{ cell.value|num }}{% endif %}
+              </div>
+              {% if cell.delta != None %}
+                <div class="pm-stat__sub">
+                  <span class="pm-delta-pill{% if cell.cls %} pm-delta--{{ cell.cls }}{% endif %}">{{ cell.delta|delta }}</span>
+                  {% translate "vs baseline" %}
+                </div>
+              {% endif %}
+            </div>
+          {% endwith %}
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
+  {% if sections %}
+    <div class="pm-grid">
+      {% include "django_prometric/_comparison.html" with columns=snaps %}
+      {% include "django_prometric/_comparison.html" with sections=route_sections columns=snaps %}
+    </div>
+  {% else %}
+    <div class="pm-empty pm-card">
+      <p>{% translate "These snapshots share no comparable metrics." %}</p>
+    </div>
+  {% endif %}
+{% endblock %}

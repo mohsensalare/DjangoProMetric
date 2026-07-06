@@ -1,0 +1,30 @@
+{% extends "django_prometric/components/card.html" %}
+{% load i18n prometric_extras %}
+
+{% block body %}
+  {% if queries %}
+    <table class="pm-table">
+      <thead>
+        <tr>
+          <th>{% translate "Query" %}</th>
+          <th class="pm-cell-num">{% translate "Calls" %}</th>
+          <th class="pm-cell-num">{% translate "Avg" %}</th>
+          <th class="pm-cell-num">{% translate "Total time" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for stat in queries %}
+          <tr>
+            <td><code class="pm-sql" dir="ltr">{{ stat.query }}</code></td>
+            <td class="pm-cell-num">{{ stat.calls|num }}</td>
+            <td class="pm-cell-num">{{ stat.avg_ms|ms }}</td>
+            <td class="pm-cell-num">{{ stat.total_ms|ms }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p class="pm-card__hint">{% translate "Ranked by total time cost — the top entry is where optimisation pays off first." %}</p>
+  {% else %}
+    <div class="pm-empty"><p>{% translate "No database queries were recorded in this period." %}</p></div>
+  {% endif %}
+{% endblock %}

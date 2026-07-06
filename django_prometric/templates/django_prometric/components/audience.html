@@ -1,0 +1,21 @@
+{% extends "django_prometric/components/card.html" %}
+{% load i18n %}
+
+{% block body %}
+  {% if audience.browsers or audience.os or audience.devices %}
+    {% if audience.devices %}
+      <div class="pm-eyebrow pm-card__section">{% translate "Devices" %}</div>
+      {% include "django_prometric/components/_bars.html" with items=audience.devices %}
+    {% endif %}
+    {% if audience.browsers %}
+      <div class="pm-eyebrow pm-card__section">{% translate "Browsers" %}</div>
+      {% include "django_prometric/components/_bars.html" with items=audience.browsers %}
+    {% endif %}
+    {% if audience.os %}
+      <div class="pm-eyebrow pm-card__section">{% translate "Operating systems" %}</div>
+      {% include "django_prometric/components/_bars.html" with items=audience.os %}
+    {% endif %}
+  {% else %}
+    <div class="pm-empty"><p>{% translate "No data in this period." %}</p></div>
+  {% endif %}
+{% endblock %}
