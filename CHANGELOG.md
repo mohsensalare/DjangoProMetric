@@ -6,6 +6,13 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-07-06
+
+### Changed
+
+- Maintenance release. No functional changes from 0.2.0; published as a new
+  version because 0.2.0 is no longer available on PyPI.
+
 ## [0.2.0] - 2026-07-06
 
 ### Added
@@ -38,6 +45,7 @@ The project follows [Semantic Versioning](https://semver.org/).
 - Pluggable Cloudflare, Sentry, and PostgreSQL analytics providers.
 - Traffic, audience, performance, database, and snapshot views.
 
-[Unreleased]: https://github.com/mohsensalare/DjangoProMetric/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/mohsensalare/DjangoProMetric/compare/v0.2.1...HEAD
+[0.2.1]: https://github.com/mohsensalare/DjangoProMetric/releases/tag/v0.2.1
 [0.2.0]: https://github.com/mohsensalare/DjangoProMetric/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/mohsensalare/DjangoProMetric/releases/tag/v0.1.0
