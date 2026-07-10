@@ -25,6 +25,11 @@ coverage.xml
 htmlcov/
 .tox/
 
+# Documentation build and visual-test artifacts
+/.cache/
+/site/
+/output/
+
 # Django
 *.sqlite3
 *.log

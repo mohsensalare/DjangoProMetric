@@ -1,0 +1,127 @@
+site_name: django-prometric
+site_url: https://mohsensalare.github.io/DjangoProMetric/
+site_description: Route-aware analytics and operational insight for Django.
+site_author: Mohsen Salare
+
+repo_name: mohsensalare/DjangoProMetric
+repo_url: https://github.com/mohsensalare/DjangoProMetric
+edit_uri: edit/main/docs/
+
+theme:
+  name: material
+  custom_dir: docs/overrides
+  language: en
+  icon:
+    logo: material/chart-timeline-variant-shimmer
+    repo: fontawesome/brands/github
+  font:
+    text: Manrope
+    code: JetBrains Mono
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.tracking
+    - search.suggest
+    - search.highlight
+    - search.share
+    - toc.follow
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+
+nav:
+  - Home: index.md
+  - Get started: getting-started.md
+  - Configuration: configuration.md
+  - Providers:
+      - Overview: providers.md
+      - Cloudflare: cloudflare.md
+      - ArvanCloud: arvancloud.md
+      - Sentry: sentry.md
+      - PostgreSQL: postgres.md
+      - Custom providers: custom-providers.md
+  - Security: security.md
+  - API reference: reference/provider-api.md
+  - Development: development.md
+  - Changelog: changelog.md
+
+plugins:
+  - search
+  - social
+  - privacy
+  - minify:
+      minify_html: true
+      minify_js: true
+      minify_css: true
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: sphinx
+            heading_level: 2
+            members_order: source
+            merge_init_into_class: true
+            separate_signature: true
+            show_root_heading: true
+            show_source: false
+            show_symbol_type_heading: true
+            show_symbol_type_toc: true
+            signature_crossrefs: true
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets:
+      base_path:
+        - .
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+extra_css:
+  - stylesheets/extra.css
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/mohsensalare/DjangoProMetric
+      name: django-prometric on GitHub
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/django-prometric/
+      name: django-prometric on PyPI
+    - icon: material/web
+      link: https://mohsensalare.ir
+      name: Mohsen Salare
+
+copyright: Copyright &copy; 2026 Mohsen Salare · MIT License

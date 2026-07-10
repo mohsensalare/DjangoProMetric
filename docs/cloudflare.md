@@ -1,3 +1,8 @@
+---
+title: Cloudflare analytics provider
+description: Connect Cloudflare GraphQL Analytics to django-prometric for route traffic, audience, cache, security, and edge performance metrics.
+---
+
 # Cloudflare provider
 
 An edge-traffic source for sites behind [Cloudflare](https://www.cloudflare.com/).

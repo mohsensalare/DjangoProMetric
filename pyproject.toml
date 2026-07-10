@@ -53,7 +53,7 @@ dynamic = ["version"]
 
 [project.urls]
 Homepage = "https://github.com/mohsensalare/DjangoProMetric"
-Documentation = "https://github.com/mohsensalare/DjangoProMetric/tree/main/docs"
+Documentation = "https://mohsensalare.github.io/DjangoProMetric/"
 Changelog = "https://github.com/mohsensalare/DjangoProMetric/blob/main/CHANGELOG.md"
 Source = "https://github.com/mohsensalare/DjangoProMetric"
 Issues = "https://github.com/mohsensalare/DjangoProMetric/issues"
@@ -84,6 +84,11 @@ dev = [
     "build",
     "twine",
 ]
+docs = [
+    "mkdocs-material[imaging]>=9.6,<10",
+    "mkdocs-minify-plugin>=0.8,<1",
+    "mkdocstrings[python]>=0.29,<1",
+]
 
 [tool.hatch.version]
 path = "django_prometric/__init__.py"
@@ -100,6 +105,7 @@ include = [
     "/RELEASING.md",
     "/LICENSE",
     "/CHANGELOG.md",
+    "/mkdocs.yml",
 ]
 
 [tool.pytest.ini_options]

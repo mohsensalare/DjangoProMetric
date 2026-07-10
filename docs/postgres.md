@@ -1,3 +1,8 @@
+---
+title: PostgreSQL monitoring provider
+description: Use Django's PostgreSQL connection to monitor database health, tables, indexes, slow queries, and operational insights.
+---
+
 # PostgreSQL provider
 
 A database-health source that reads PostgreSQL's own statistics views through

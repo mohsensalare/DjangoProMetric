@@ -6,6 +6,12 @@ The project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- A searchable Material for MkDocs documentation site with provider API
+  reference, light/dark themes, per-page social cards, structured SEO metadata,
+  sitemap and robots directives, and automatic GitHub Pages deployment.
+
 ## [0.3.0] - 2026-07-10
 
 ### Added
@@ -29,9 +35,9 @@ The project follows [Semantic Versioning](https://semver.org/).
   Exporters return only a reset-on-fetch Top(10) snapshot (not a queryable
   history) and that the exporter-management endpoint requires a higher
   permission (HTTP 403 on a report-read key). See
-  [`docs/arvancloud.md`](docs/arvancloud.md).
-- Provider guides for **Cloudflare** ([`docs/cloudflare.md`](docs/cloudflare.md))
-  and **Sentry** ([`docs/sentry.md`](docs/sentry.md)), and links to every
+  [ArvanCloud provider guide](https://mohsensalare.github.io/DjangoProMetric/arvancloud/).
+- Provider guides for **Cloudflare** ([documentation](https://mohsensalare.github.io/DjangoProMetric/cloudflare/))
+  and **Sentry** ([documentation](https://mohsensalare.github.io/DjangoProMetric/sentry/)), and links to every
   provider guide from the README, so all four built-in providers are documented
   alongside PostgreSQL and ArvanCloud.
 

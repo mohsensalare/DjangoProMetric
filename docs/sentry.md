@@ -1,3 +1,8 @@
+---
+title: Sentry performance provider
+description: Connect Sentry to django-prometric for Django route performance, slow transactions, issues, queries, and backend spans.
+---
+
 # Sentry provider
 
 An application-side source that reads [Sentry](https://sentry.io/)'s web API

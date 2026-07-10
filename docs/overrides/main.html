@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block extrahead %}
+  {{ super() }}
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <meta property="og:site_name" content="django-prometric">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "django-prometric",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any",
+      "description": "Route-aware analytics and operational insight for Django.",
+      "url": "https://mohsensalare.github.io/DjangoProMetric/",
+      "downloadUrl": "https://pypi.org/project/django-prometric/",
+      "softwareRequirements": "Python 3.9 or newer; Django 4.2 or newer",
+      "license": "https://opensource.org/licenses/MIT",
+      "codeRepository": "https://github.com/mohsensalare/DjangoProMetric",
+      "author": {
+        "@type": "Person",
+        "name": "Mohsen Salare",
+        "url": "https://mohsensalare.ir"
+      }
+    }
+  </script>
+{% endblock %}

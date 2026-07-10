@@ -1,3 +1,8 @@
+---
+title: ArvanCloud analytics provider
+description: Connect ArvanCloud Reports API to django-prometric for domain traffic, cache, country, status, and security analytics.
+---
+
 # ArvanCloud provider
 
 An edge-traffic source for sites behind [ArvanCloud](https://www.arvancloud.ir/)

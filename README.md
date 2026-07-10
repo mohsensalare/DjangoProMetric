@@ -3,6 +3,7 @@
 [![Status: Beta](https://img.shields.io/badge/status-beta-f59e0b)](https://github.com/mohsensalare/DjangoProMetric/releases)
 [![Python 3.9–3.14](https://img.shields.io/badge/python-3.9%E2%80%933.14-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Django 4.2–6.0](https://img.shields.io/badge/django-4.2%E2%80%936.0-092E20?logo=django&logoColor=white)](https://www.djangoproject.com/)
+[![Documentation](https://img.shields.io/badge/docs-live-00a884)](https://mohsensalare.github.io/DjangoProMetric/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-2563eb)](https://github.com/mohsensalare/DjangoProMetric/blob/main/LICENSE)
 
 **Route-aware analytics and operational insight for Django.**
@@ -12,7 +13,7 @@ your project, then connects traffic, performance, audience, error, and database
 metrics to the routes that produced them—all inside a protected Django
 dashboard.
 
-[Quick start](#quick-start) · [Providers](#providers) ·
+[Documentation](https://mohsensalare.github.io/DjangoProMetric/) · [Quick start](#quick-start) · [Providers](#providers) ·
 [Configuration](#configuration) · [Security](#security) ·
 [Development](#development)
 
@@ -150,7 +151,7 @@ DJANGO_PROMETRIC = {
 Some route-level and performance metrics depend on the Cloudflare plan. The
 provider detects unavailable features and reports plan limits in the UI.
 
-Read the [Cloudflare provider guide](https://github.com/mohsensalare/DjangoProMetric/blob/main/docs/cloudflare.md)
+Read the [Cloudflare provider guide](https://mohsensalare.github.io/DjangoProMetric/cloudflare/)
 for host scoping, the two analytics datasets, and plan limits.
 
 ### ArvanCloud
@@ -181,7 +182,7 @@ HTTP-method, and performance cards are not included — a live probe confirmed
 ArvanCloud Metric Exporters return only a reset-on-fetch Top(10) snapshot (no
 history), so they cannot back those cards.
 
-Read the [ArvanCloud provider guide](https://github.com/mohsensalare/DjangoProMetric/blob/main/docs/arvancloud.md)
+Read the [ArvanCloud provider guide](https://mohsensalare.github.io/DjangoProMetric/arvancloud/)
 for scope limits, time-window handling, and permissions.
 
 ### Sentry
@@ -198,7 +199,7 @@ When `SENTRY_PROJECT` is omitted, the first project returned by Sentry is used.
 The default performance lookback is 14 days; change it with
 `DJANGO_PROMETRIC["SENTRY"]["MAX_DAYS"]`.
 
-Read the [Sentry provider guide](https://github.com/mohsensalare/DjangoProMetric/blob/main/docs/sentry.md)
+Read the [Sentry provider guide](https://mohsensalare.github.io/DjangoProMetric/sentry/)
 for project pinning, self-hosted Sentry, and metric semantics.
 
 ### PostgreSQL
@@ -225,7 +226,7 @@ DJANGO_PROMETRIC = {
 Database, table, and index metrics use standard PostgreSQL statistics views.
 Query-level metrics additionally require `pg_stat_statements`.
 
-Read the [PostgreSQL provider guide](https://github.com/mohsensalare/DjangoProMetric/blob/main/docs/postgres.md)
+Read the [PostgreSQL provider guide](https://mohsensalare.github.io/DjangoProMetric/postgres/)
 for extension setup, permissions, and metric semantics.
 
 ### Custom providers
@@ -342,7 +343,7 @@ documented in [RELEASING.md](https://github.com/mohsensalare/DjangoProMetric/blo
 
 ## Links
 
-- [Documentation](https://github.com/mohsensalare/DjangoProMetric/tree/main/docs)
+- [Documentation](https://mohsensalare.github.io/DjangoProMetric/)
 - [Development and release process](https://github.com/mohsensalare/DjangoProMetric/blob/main/RELEASING.md)
 - [Changelog](https://github.com/mohsensalare/DjangoProMetric/blob/main/CHANGELOG.md)
 - [Issue tracker](https://github.com/mohsensalare/DjangoProMetric/issues)
