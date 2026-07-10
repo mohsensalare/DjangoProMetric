@@ -1,6 +1,6 @@
 ---
 title: Analytics providers
-description: Combine Cloudflare, ArvanCloud, Sentry, and PostgreSQL metrics in one route-aware Django dashboard.
+description: Combine Cloudflare, ArvanCloud, Sentry, and PostgreSQL metrics in one self-hosted Django analytics and monitoring dashboard.
 ---
 
 # Providers

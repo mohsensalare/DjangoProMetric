@@ -1,6 +1,6 @@
 ---
 title: ArvanCloud analytics provider
-description: Connect ArvanCloud Reports API to django-prometric for domain traffic, cache, country, status, and security analytics.
+description: Connect ArvanCloud Reports API to django-prometric for domain traffic, cache, country, status, and security analytics — آنالیتیکس و مانیتورینگ جنگو با آروان‌کلود.
 ---
 
 # ArvanCloud provider
@@ -10,6 +10,11 @@ CDN. It reads ArvanCloud's **Reports API** — the authoritative source for the
 dashboard's selected historical windows — with the standard library only, and
 caches responses through Django's cache framework to respect the API's rate
 limits. It is the ArvanCloud counterpart to the Cloudflare provider.
+
+<p dir="rtl" lang="fa">اگر سایت جنگوی شما پشت CDN آروان‌کلود است، django-prometric
+گزارش‌های ترافیک، کش، کشورها، وضعیت پاسخ‌ها و حملات را مستقیم از API گزارش‌های
+آروان‌کلود می‌خواند و در یک داشبورد آنالیتیکس امن داخل خود جنگو نمایش می‌دهد —
+بدون نیاز به سرویس واسطه. راهنمای کامل راه‌اندازی در همین صفحه است.</p>
 
 > **Scope of this release.** This is the Phase 1 (Reports API) integration. It
 > ships overview, traffic timeseries, country, cache, status, and attack/security

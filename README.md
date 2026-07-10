@@ -6,12 +6,12 @@
 [![Documentation](https://img.shields.io/badge/docs-live-00a884)](https://mohsensalare.github.io/DjangoProMetric/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-2563eb)](https://github.com/mohsensalare/DjangoProMetric/blob/main/LICENSE)
 
-**Route-aware analytics and operational insight for Django.**
+**Self-hosted analytics dashboard and API monitoring for Django.**
 
-django-prometric discovers the URLs and Django REST Framework endpoints in
-your project, then connects traffic, performance, audience, error, and database
-metrics to the routes that produced them—all inside a protected Django
-dashboard.
+django-prometric is an open-source Django app that discovers the URLs and
+Django REST Framework endpoints in your project, then connects traffic,
+performance, audience, error, and database metrics to the routes that produced
+them—per-endpoint monitoring inside a protected, self-hosted Django dashboard.
 
 [Documentation](https://mohsensalare.github.io/DjangoProMetric/) · [Quick start](#quick-start) · [Providers](#providers) ·
 [Configuration](#configuration) · [Security](#security) ·

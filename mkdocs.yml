@@ -1,6 +1,9 @@
 site_name: django-prometric
 site_url: https://mohsensalare.github.io/DjangoProMetric/
-site_description: Route-aware analytics and operational insight for Django.
+site_description: >-
+  Open-source, self-hosted analytics and API monitoring dashboard for Django
+  and Django REST Framework — per-endpoint traffic, performance, errors, and
+  database metrics.
 site_author: Mohsen Salare
 
 repo_name: mohsensalare/DjangoProMetric

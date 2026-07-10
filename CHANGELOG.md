@@ -12,6 +12,13 @@ The project follows [Semantic Versioning](https://semver.org/).
   reference, light/dark themes, per-page social cards, structured SEO metadata,
   sitemap and robots directives, and automatic GitHub Pages deployment.
 
+### Changed
+
+- README, PyPI metadata, and documentation titles and descriptions rewritten
+  around the terms developers actually search — Django analytics dashboard,
+  API monitoring, per-endpoint metrics, self-hosted — and a Persian summary on
+  the ArvanCloud guide for its Persian-speaking audience.
+
 ## [0.3.0] - 2026-07-10
 
 ### Added

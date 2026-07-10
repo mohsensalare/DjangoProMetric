@@ -1,19 +1,20 @@
 ---
-title: Route-aware analytics for Django
-description: Discover every Django and DRF route, then connect it to traffic, performance, error, and database data.
+title: Django analytics dashboard and API monitoring
+description: Open-source, self-hosted analytics and API monitoring for Django — per-endpoint traffic, performance, errors, and database metrics in one dashboard.
 hide:
   - toc
 ---
 
 <div class="pm-hero" markdown>
 
-<div class="pm-eyebrow">Django observability, resolved by route</div>
+<div class="pm-eyebrow">Self-hosted Django analytics, resolved by route</div>
 
 # Know what every route is doing.
 
-django-prometric discovers your Django and DRF endpoints, then connects traffic,
-performance, audience, error, and database signals to the routes that produced
-them—all inside your own protected Django dashboard.
+django-prometric is an open-source analytics dashboard and API monitoring tool
+for Django. It discovers your Django and Django REST Framework endpoints, then
+connects traffic, performance, audience, error, and database metrics to the
+routes that produced them—all inside your own protected, self-hosted dashboard.
 
 <div class="pm-flow" aria-label="django-prometric data flow">
   <span>request</span><b>→</b><span>Django route</span><b>→</b><span>provider signals</span><b>→</b><span>actionable insight</span>

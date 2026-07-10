@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "django-prometric"
-description = "Route-aware analytics dashboard for Django: discover your URLs and DRF APIs, and see traffic, performance, and audience metrics for each of them."
+description = "Self-hosted analytics dashboard and API monitoring for Django: discover your URLs and DRF endpoints, and see traffic, performance, error, and database metrics for each of them."
 readme = "README.md"
 requires-python = ">=3.9"
 license = "MIT"
@@ -16,12 +16,19 @@ keywords = [
     "django",
     "analytics",
     "dashboard",
-    "cloudflare",
-    "arvancloud",
     "monitoring",
+    "api-monitoring",
+    "observability",
+    "metrics",
+    "performance",
+    "traffic",
+    "self-hosted",
+    "cloudflare",
+    "sentry",
+    "postgresql",
+    "arvancloud",
     "drf",
     "rest-framework",
-    "metrics",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
