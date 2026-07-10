@@ -24,8 +24,9 @@ DEFAULTS = {
         "API_URL": "https://api.cloudflare.com/client/v4/graphql",
         "TIMEOUT": 10,
         # A zone often serves several hostnames (frontend, backend, …).
-        # List the hostnames this Django project answers to count only its
-        # traffic, or list hostnames to drop. Empty = the whole zone.
+        # Name the hostname(s) this Django project answers to count only its
+        # traffic, or name hostnames to drop. Either accepts a single string
+        # or a list; empty = the whole zone (a startup warning is raised).
         "HOSTS": [],
         "EXCLUDE_HOSTS": [],
     },
@@ -38,6 +39,27 @@ DEFAULTS = {
         # How many days back the plan retains performance data. Longer
         # requests are flagged in the UI and clamped on demand.
         "MAX_DAYS": 14,
+    },
+    "ARVANCLOUD": {
+        # Names of the environment variables the credentials are read from.
+        "API_KEY_ENV": "ARVANCLOUD_API_KEY",
+        "DOMAIN_ENV": "ARVANCLOUD_DOMAIN",
+        "BASE_URL": "https://napi.arvancloud.ir/cdn/4.0",
+        "TIMEOUT": 10,
+        # Empty means the whole registered ArvanCloud domain. "@" means the
+        # root domain; any other value is a single subdomain label. Several
+        # reports (status, attacks) cannot be filtered by subdomain, so their
+        # capabilities are dropped rather than reported whole-domain when a
+        # subdomain scope is set.
+        "SUBDOMAIN": "",
+        # Longest window a custom/90d range is served over. The dashboard's
+        # longest preset is 90 days and the Reports API serves it (verified
+        # live to 120 days at daily granularity); this caps pathological
+        # custom ranges without truncating any period the UI can request.
+        "MAX_REPORT_DAYS": 90,
+        # Phase 2 (Metric Exporters) — inert until implemented. Optional
+        # type -> exporter ID mapping used when discovery cannot pick one.
+        "METRIC_EXPORTER_IDS": {},
     },
     "POSTGRES": {
         "DB_ALIAS": "default",  # which Django DB connection to inspect

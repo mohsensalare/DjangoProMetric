@@ -17,6 +17,7 @@ keywords = [
     "analytics",
     "dashboard",
     "cloudflare",
+    "arvancloud",
     "monitoring",
     "drf",
     "rest-framework",
@@ -65,11 +66,14 @@ Author = "https://mohsensalare.ir"
 # and keeps working if either provider ever grows a real dependency.
 cloudflare = []
 sentry = []
+# The ArvanCloud provider reads the Reports API (JSON) with the standard
+# library alone; the extra is intentionally empty like cloudflare/sentry.
+arvancloud = []
 postgres = [
     "psycopg[binary]>=3.1",
 ]
 full = [
-    "django-prometric[cloudflare,postgres,sentry]",
+    "django-prometric[arvancloud,cloudflare,postgres,sentry]",
 ]
 dev = [
     "django-prometric[full]",

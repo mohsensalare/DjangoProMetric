@@ -134,6 +134,16 @@ class AnalyticsProvider:
         """Shown on the onboarding screen when not configured."""
         return ""
 
+    def configuration_warnings(self) -> list:
+        """Startup warnings for a configured-but-under-scoped provider.
+
+        Returns a list of :class:`django.core.checks.Warning`, surfaced at
+        server startup, for a provider that works yet reports an ambiguous
+        scope — e.g. a whole Cloudflare zone, or a guessed Sentry project.
+        Only consulted for providers that are :attr:`is_configured`.
+        """
+        return []
+
     def description(self) -> str:
         """Short data-source line for the dashboard header."""
         return ""

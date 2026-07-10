@@ -56,6 +56,13 @@ _BREAKDOWN_DIMENSIONS = {
 }
 
 
+def _host_list(value) -> list[str]:
+    """Normalise a HOSTS setting to a clean list, accepting a bare string."""
+    if isinstance(value, str):
+        value = [value]
+    return [host.strip() for host in (value or []) if host and host.strip()]
+
+
 class CloudflareProvider(AnalyticsProvider):
     slug = "cloudflare"
     verbose_name = "Cloudflare"
@@ -74,9 +81,10 @@ class CloudflareProvider(AnalyticsProvider):
         self.token_env = cf["API_TOKEN_ENV"]
         self.zone_env = cf["ZONE_ID_ENV"]
         # A zone can front many hostnames; these narrow the numbers to the
-        # ones this Django project actually serves.
-        self.hosts = [h.strip() for h in cf["HOSTS"] if h.strip()]
-        self.exclude_hosts = [h.strip() for h in cf["EXCLUDE_HOSTS"] if h.strip()]
+        # ones this Django project actually serves. Either setting accepts a
+        # single hostname or a list of them.
+        self.hosts = _host_list(cf["HOSTS"])
+        self.exclude_hosts = _host_list(cf["EXCLUDE_HOSTS"])
         self.cache = caches[config["CACHE_ALIAS"]]
         self.cache_ttl = config["CACHE_TTL"]
 
@@ -91,6 +99,27 @@ class CloudflareProvider(AnalyticsProvider):
             "Cloudflare API token with Analytics Read permission and your "
             "zone ID, then restart the server."
         ) % {"token": self.token_env, "zone": self.zone_env}
+
+    def configuration_warnings(self) -> list:
+        # Console-facing developer message; deliberately not translated.
+        from django.core.checks import Warning as CheckWarning
+
+        if self.host_filtered:
+            return []
+        return [
+            CheckWarning(
+                "Cloudflare analytics are not scoped to a hostname.",
+                hint=(
+                    "A zone often fronts several hostnames, so the dashboard "
+                    "counts the whole zone — including hosts this project does "
+                    "not serve. Set DJANGO_PROMETRIC['CLOUDFLARE']['HOSTS'] to "
+                    "the hostname (or list of hostnames) this project answers "
+                    "to, or EXCLUDE_HOSTS to drop the ones it does not."
+                ),
+                obj="django_prometric.providers.cloudflare",
+                id="django_prometric.W002",
+            )
+        ]
 
     def description(self) -> str:
         name = self._zone_name() or f"zone {self.zone_id[:10]}…"

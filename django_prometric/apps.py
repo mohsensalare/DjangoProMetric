@@ -6,3 +6,6 @@ class PrometricConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "django_prometric"
     verbose_name = _("ProMetric")
+
+    def ready(self):
+        from . import checks  # noqa: F401 — registers system checks

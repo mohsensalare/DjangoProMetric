@@ -69,6 +69,7 @@ class SentryProvider(AnalyticsProvider):
         self.project = os.environ.get(sentry["PROJECT_ENV"], "").strip()
         self.token_env = sentry["API_TOKEN_ENV"]
         self.org_env = sentry["ORG_ENV"]
+        self.project_env = sentry["PROJECT_ENV"]
         self.cache = caches[config["CACHE_ALIAS"]]
         self.cache_ttl = config["CACHE_TTL"]
 
@@ -83,6 +84,27 @@ class SentryProvider(AnalyticsProvider):
             "auth token with org:read and event:read scopes and your "
             "organization slug, then restart the server."
         ) % {"token": self.token_env, "org": self.org_env}
+
+    def configuration_warnings(self) -> list:
+        # Console-facing developer message; deliberately not translated.
+        from django.core.checks import Warning as CheckWarning
+
+        if self.project:
+            return []
+        return [
+            CheckWarning(
+                f"Sentry analytics are not pinned to a project ({self.project_env} is unset).",
+                hint=(
+                    f"ProMetric falls back to the first project in the "
+                    f"organization, so the dashboard may report a different "
+                    f"project's numbers. Set the {self.project_env} environment "
+                    f"variable to the project slug or numeric id you want to "
+                    f"report on."
+                ),
+                obj="django_prometric.providers.sentry",
+                id="django_prometric.W001",
+            )
+        ]
 
     def description(self) -> str:
         project = self.project or self._default_project()

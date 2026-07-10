@@ -36,6 +36,7 @@ dashboard.
 | Provider | Contributes | Install | Setup |
 | --- | --- | --- | --- |
 | **Cloudflare** | Traffic, audience, cache, bandwidth, bots, security, SEO, and network data | `django-prometric[cloudflare]` | API token + zone ID |
+| **ArvanCloud** | Edge traffic, cache, countries, status, and attack/security data | `django-prometric[arvancloud]` | API key + domain |
 | **Sentry** | Application performance, slow routes, issues, queries, and backend operations | `django-prometric[sentry]` | Auth token + organization |
 | **PostgreSQL** | Database health, tables, indexes, slow queries, and derived insights | `django-prometric[postgres]` | Existing Django PostgreSQL connection |
 
@@ -149,6 +150,40 @@ DJANGO_PROMETRIC = {
 Some route-level and performance metrics depend on the Cloudflare plan. The
 provider detects unavailable features and reports plan limits in the UI.
 
+Read the [Cloudflare provider guide](https://github.com/mohsensalare/DjangoProMetric/blob/main/docs/cloudflare.md)
+for host scoping, the two analytics datasets, and plan limits.
+
+### ArvanCloud
+
+For sites behind [ArvanCloud](https://www.arvancloud.ir/) CDN. Create an API key
+with report read access, then expose it and your domain:
+
+```console
+export ARVANCLOUD_API_KEY="..."
+export ARVANCLOUD_DOMAIN="example.com"
+```
+
+The provider is opt-in while it is validated across plans; add it to your list:
+
+```python
+DJANGO_PROMETRIC = {
+    "PROVIDERS": ["arvancloud"],
+    "ARVANCLOUD": {
+        "SUBDOMAIN": "blog",   # optional; "@" for the root domain
+    },
+}
+```
+
+This release reads the ArvanCloud Reports API (overview, traffic, countries,
+cache, status, and security) over the dashboard's presets up to 90 days and
+custom ranges, with time-window boundaries converted to real UTC. Route-level,
+HTTP-method, and performance cards are not included — a live probe confirmed
+ArvanCloud Metric Exporters return only a reset-on-fetch Top(10) snapshot (no
+history), so they cannot back those cards.
+
+Read the [ArvanCloud provider guide](https://github.com/mohsensalare/DjangoProMetric/blob/main/docs/arvancloud.md)
+for scope limits, time-window handling, and permissions.
+
 ### Sentry
 
 Create an auth token with `org:read` and `event:read` scopes:
@@ -162,6 +197,9 @@ export SENTRY_PROJECT="your-project-slug"  # optional
 When `SENTRY_PROJECT` is omitted, the first project returned by Sentry is used.
 The default performance lookback is 14 days; change it with
 `DJANGO_PROMETRIC["SENTRY"]["MAX_DAYS"]`.
+
+Read the [Sentry provider guide](https://github.com/mohsensalare/DjangoProMetric/blob/main/docs/sentry.md)
+for project pinning, self-hosted Sentry, and metric semantics.
 
 ### PostgreSQL
 

@@ -17,12 +17,13 @@ _ALIASES = {
     "cloudflare": "django_prometric.providers.cloudflare.CloudflareProvider",
     "sentry": "django_prometric.providers.sentry.SentryProvider",
     "postgres": "django_prometric.providers.postgres.PostgresProvider",
+    "arvancloud": "django_prometric.providers.arvancloud.ArvanCloudProvider",
     # Pre-list era spelling of the default selection.
     "auto": "django_prometric.providers.cloudflare.CloudflareProvider",
 }
 
 # Built-in providers whose dependencies ship as a pip extra of the same name.
-_EXTRAS = frozenset({"cloudflare", "sentry", "postgres"})
+_EXTRAS = frozenset({"cloudflare", "sentry", "postgres", "arvancloud"})
 
 
 def _load(spec: str) -> type[AnalyticsProvider]:
